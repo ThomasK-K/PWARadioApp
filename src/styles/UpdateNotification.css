@@ -1,0 +1,73 @@
+/* src/styles/UpdateNotification.css */
+.update-notification {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: var(--background-color);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  padding: 16px;
+  max-width: 320px;
+  animation: slide-in 0.3s ease-out;
+}
+
+.update-content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.update-content p {
+  margin: 0;
+  color: var(--text-color);
+}
+
+.update-content button {
+  padding: 8px 16px;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+#update-button {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+#update-button:hover {
+  background-color: var(--primary-color-dark);
+}
+
+#dismiss-button {
+  background-color: transparent;
+  color: var(--text-color);
+}
+
+#dismiss-button:hover {
+  background-color: var(--hover-color);
+}
+
+@keyframes slide-in {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@media (max-width: 480px) {
+  .update-notification {
+    bottom: 0;
+    right: 0;
+    left: 0;
+    max-width: none;
+    border-radius: 8px 8px 0 0;
+  }
+}

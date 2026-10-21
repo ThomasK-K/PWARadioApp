@@ -1,0 +1,35 @@
+.error-boundary {
+  padding: 2rem;
+  margin: 2rem auto;
+  max-width: 500px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  background-color: var(--card-bg, #f7f7f7);
+  color: var(--text-color, #333);
+}
+
+.error-boundary h2 {
+  color: var(--danger-color, #ef476f);
+  margin-bottom: 1rem;
+}
+
+.error-boundary p {
+  margin-bottom: 1.5rem;
+  line-height: 1.6;
+}
+
+.retry-button {
+  background-color: var(--primary-color, #3a86ff);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.retry-button:hover {
+  background-color: var(--secondary-color, #8d99ae);
+}

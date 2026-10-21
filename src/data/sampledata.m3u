@@ -1,0 +1,16 @@
+#EXTM3U
+# Deutschlandfunk High Quality
+#EXTINF:-1,Deutschlandfunk - High Quality
+https://st01.sslstream.dlf.de/dlf/01/high/aac/stream.aac
+# Deutschlandfunk Low Quality
+#EXTINF:-1,Deutschlandfunk - Low Quality
+https://st01.sslstream.dlf.de/dlf/01/low/mp3/stream.mp3
+# Radio Bayern 1 High Quality
+#EXTINF:-1,Radio Bayern 1 - High Quality
+https://dispatcher.rndfnk.com/br/br1/obb/mp3/high
+# Radio Bayern 1 Low Quality
+#EXTINF:-1,Radio Bayern 1 - Low Quality
+https://dispatcher.rndfnk.com/br/br1/obb/mp3/low
+# WDR 2 High Quality
+#EXTINF:-1,WDR 2 - High Quality
+https://wdr-wdr2-ruhrgebiet.icecastssl.wdr.de/wdr/wdr2/ruhrgebiet/mp3/128/stream.mp3
