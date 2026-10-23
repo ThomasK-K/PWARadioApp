@@ -1,6 +1,6 @@
 {
- "name": "Countdown App",
-  "short_name": "Countdown",
+ "name": "PWA Radio App",
+  "short_name": "RadioApp",
  "icons": [
   {
    "src": "\/android-icon-36x36.png",

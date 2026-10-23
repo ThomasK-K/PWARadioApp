@@ -2,7 +2,7 @@ import { atom } from "recoil";
 import { safeGetItem, safeSetItem } from "../utils/storageUtils";
 
 // Standardwert für die MPD Server URLs
-const DEFAULT_URLS = ['http://192.168.10.162/player', 'http://192.168.10.162:8000/player'];
+const DEFAULT_URLS = ['https://musicpi/tkk.home64.de/player'];
 
 // Atom für die Liste der MPD Server URLs
 export const mpdUrlsState = atom<string[]>({

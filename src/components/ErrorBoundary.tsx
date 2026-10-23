@@ -1,7 +1,6 @@
 //
 // errorBoundary.tsx
-//import { Component } from 'react';
-import type { ErrorInfo, ReactNode } from 'react';
+import { Component, type ErrorInfo, type ReactNode } from 'react';
 import '../styles/ErrorBoundary.css';
 
 interface Props {

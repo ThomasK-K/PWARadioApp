@@ -7,24 +7,31 @@ import { selectedMpdUrlState } from "../state/mpdUrls";
 import { radioModeState } from "../state/radioMode";
 // import { actStream } from "../state/actStream";
 import { fetchMPDStreams } from "../data/fetchMPDPlaylists";
+import { playStream } from "../utils/playStream";
 
 interface StreamListProps {
   station?: RadioStation;
   onBack: () => void;
+  favoriteStreams: RadioStream[];
+  onToggleFavorite: (stream: RadioStream) => void;
 }
 
-export const StreamList: React.FC<StreamListProps> = ({ station, onBack }) => {
+export const StreamList: React.FC<StreamListProps> = ({
+  station,
+  onBack,
+  favoriteStreams,
+  onToggleFavorite,
+}) => {
   const [streams, setStreams] = useState<RadioStream[]>([]);
   const [selectedUrl] = useRecoilState(selectedMpdUrlState);
   const [radioMode] = useRecoilState(radioModeState);
   // const [setActStreamState] = useRecoilState(actStream);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { isPlaying, currentUrl, play } = useAudioPlayer();
+  const { isPlaying, currentUrl } = useAudioPlayer();
 
   useEffect(() => {
     if (!station?.name || !selectedUrl) return;
-
     // Lade Playlists vom MPD-Server, wenn sich die URL ändert
     const loadStreams = async () => {
       setIsLoading(true);
@@ -50,18 +57,7 @@ export const StreamList: React.FC<StreamListProps> = ({ station, onBack }) => {
   const handlePlayPress = async (stream: RadioStream) => {
     try {
       if (!selectedUrl) return;
-
-      if (radioMode === "local") {
-        await play(stream.url);
-      } else if (radioMode === "mpd") {
-        if (currentUrl !== stream.url) {
-          // setActStreamState(stream.name);
-
-          await fetch(`${selectedUrl}/playsong?name=${stream.url}`, {
-            method: "GET",
-          });
-        }
-      }
+      playStream(stream, radioMode);
     } catch (error) {
       console.error("Error handling play press:", error);
     }
@@ -106,6 +102,29 @@ export const StreamList: React.FC<StreamListProps> = ({ station, onBack }) => {
                       </span>
                     )}
                   </div>
+                </button>
+                <button
+                  className="favorite-toggle"
+                  type="button"
+                  aria-label={
+                    favoriteStreams.some((s) => s.name === stream.name)
+                      ? `${stream.name} aus Favoriten entfernen`
+                      : `${stream.name} zu Favoriten hinzufügen`
+                  }
+                  aria-pressed={favoriteStreams.some(
+                    (s) => s.name === stream.name,
+                  )}
+                  onClick={(event) => {
+                    event.stopPropagation();
+
+                    onToggleFavorite(stream);
+                  }}
+                >
+                  <span className="material-icons">
+                    {favoriteStreams.some((s) => s.name === stream.name)
+                      ? "star"
+                      : "star_border"}
+                  </span>
                 </button>
               </li>
             );

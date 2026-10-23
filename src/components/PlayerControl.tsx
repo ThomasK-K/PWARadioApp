@@ -164,6 +164,9 @@ export const PlayerControl: React.FC = () => {
             <p>
               <strong>{radioMode}</strong> Player
             </p>
+            <p>
+              <strong>{radioMode}</strong> Player
+            </p>
             <img
               src={songData.album || DEFAULT_ALBUM_ART}
               alt={`Album Art: ${songData.albumName || "Unknown Album"}`}

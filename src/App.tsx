@@ -1,11 +1,10 @@
 import { useState, useEffect } from 'react'
+import type { RadioStream } from "./types/types";
 import './App.css'
 import TabContainer from './components/TabContainer'
 import type { TabData } from './components/TabContainer'
 import SenderList from './components/SenderList'
 import FavoriteStations from './components/FavoriteStations'
-
-
 import Settings from './components/Settings'
 import { PlayerControl } from './components/PlayerControl'
 import type { RadioStation } from '../src/types/types';
@@ -26,24 +25,26 @@ function App() {
   
   const [selectedUrl] = useRecoilState(selectedMpdUrlState);
   const [stations, setStations] = useState<RadioStation[]>([]);
-  const [favoriteNames, setFavoriteNames] = useState<string[]>(() => {
+  const [favoriteStreams, setFavoriteStreams] = useState<RadioStream[]>(() => {
     try {
-      const savedFavorites: unknown = JSON.parse(localStorage.getItem('favoriteStations') || '[]');
+      const savedFavorites: unknown = JSON.parse(localStorage.getItem('favoriteStreams') || '[]');
       return Array.isArray(savedFavorites)
-        ? savedFavorites.filter((name): name is string => typeof name === 'string')
+        ? savedFavorites.filter((stream): stream is RadioStream => typeof stream === 'object' && stream !== null)
         : [];
     } catch {
       return [];
     }
   });
-
-  const toggleFavorite = (stationName: string) => {
-    setFavoriteNames((currentFavorites) =>
-      currentFavorites.includes(stationName)
-        ? currentFavorites.filter((name) => name !== stationName)
-        : [...currentFavorites, stationName]
-    );
-  };
+  // generic filter function  by name
+  function filterByName<T extends { name: string }>(items: T[],  name: string): T[] {
+    return items.filter(item => item.name === name)
+  }
+  const toggleFavorite = (stream: RadioStream) => {
+    setFavoriteStreams(filterByName(favoriteStreams, stream.name).length > 0
+      ? favoriteStreams.filter(s => s.name !== stream.name)
+      : [...favoriteStreams, stream]
+    );  
+  };    
   
   useEffect(() => {
     console.log('App selectedUrl:', selectedUrl);
@@ -117,8 +118,9 @@ function App() {
   }, [activeTabId])
 
   useEffect(() => {
-    localStorage.setItem('favoriteStations', JSON.stringify(favoriteNames))
-  }, [favoriteNames])
+    localStorage.setItem('favoriteStations', JSON.stringify(favoriteStreams))
+    // console.log('Gespeicherte Favoriten:', localStorage.getItem('favoriteStations')) // Debugging line to check if the favorites are being saved correctly
+  }, [favoriteStreams])
 
   const updateApp = () => {
     // Eine benutzerdefinierte Funktion, die den Service Worker aktualisiert
@@ -133,7 +135,7 @@ function App() {
       content: (
         <SenderList
           stations={stations}
-          favoriteNames={favoriteNames}
+          favoriteStreams={favoriteStreams}
           onToggleFavorite={toggleFavorite}
         />
       ),
@@ -141,11 +143,9 @@ function App() {
     {
       id: 'favorites',
       label: 'Favoriten',
-      icon: 'star',
       content: (
         <FavoriteStations
-          stations={stations}
-          favoriteNames={favoriteNames}
+          favoriteStreams={favoriteStreams}
           onToggleFavorite={toggleFavorite}
         />
       ),
