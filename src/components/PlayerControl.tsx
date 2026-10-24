@@ -167,6 +167,12 @@ export const PlayerControl: React.FC = () => {
             <p>
               <strong>{radioMode}</strong> Player
             </p>
+            {songData.artist.startsWith("https://") ?(
+             <p className="player-song-title">
+              {songData.artist || "Unbekannter Künstler"} -{" "}
+              {songData.title || "Unbekannter Titel"}
+            </p>):(
+              <div>
             <img
               src={songData.album || DEFAULT_ALBUM_ART}
               alt={`Album Art: ${songData.albumName || "Unknown Album"}`}
@@ -178,10 +184,12 @@ export const PlayerControl: React.FC = () => {
             <p className="player-song-album">
               Album: {songData.albumName || "Unbekannt"}
             </p>
-            <p className="player-song-title">
-              {songData.artist || "Unbekannter Künstler"} -{" "}
-              {songData.title || "Unbekannter Titel"}
-            </p>
+            <p className="player-song-artist">
+              { songData.artist ||"Unbekannter Künstler"}
+            </p></div>
+            )}
+            
+            
           </div>
         </div>
       )}

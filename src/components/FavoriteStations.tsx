@@ -3,6 +3,8 @@ import { useState } from "react";
 import type { RadioStream } from "../types/types";
 import "../styles/FavoriteStations.css";
 import { playStream } from "../utils/playStream";
+import { safeSetItem } from "../utils/storageUtils";
+
 
 interface FavoriteStreamsProps {
   favoriteStreams: RadioStream[];
@@ -14,21 +16,11 @@ const FavoriteStreams: React.FC<FavoriteStreamsProps> = ({
   onToggleFavorite,
 }) => {
   const [, setSelectedStream] = useState<RadioStream>();
-  // const favorites = streams.filter((stream) => favoriteStreams.includes(stream.name));
 
-  // if (selectedStream) {
-  //   return (
-  //     <StreamList
-  //       station={selectedStream}
-  //       onBack={() => setSelectedStream(undefined)}
-  //       favoriteStreams={favoriteStreams}
-  //       onToggleFavorite={onToggleFavorite}
-  //     />
-  //   );
-  // }
   const handlePlayPress = async (stream: RadioStream) => {
     try {
       setSelectedStream(stream);
+      safeSetItem("selectedStream", stream);
       playStream(stream, "mpd");
     } catch (error) {
       console.error("Error handling play press:", error);
