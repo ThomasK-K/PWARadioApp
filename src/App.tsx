@@ -29,15 +29,7 @@ function App() {
   const [favoriteStreams, setFavoriteStreams] = useState<RadioStream[]>(
     safeGetItem<RadioStream[]>("favoriteStreams", []),
   );
-  // try {
-  //   const savedFavorites: unknown = JSON.parse(localStorage.getItem('favoriteStreams') || '[]');
-  //   return Array.isArray(savedFavorites)
-  //     ? savedFavorites.filter((stream): stream is RadioStream => typeof stream === 'object' && stream !== null)
-  //     : [];
-  // } catch {
-  //   return [];
-  // }
-  // generic filter function  by name
+
   function filterByName<T extends { name: string }>(
     items: T[],
     name: string,
