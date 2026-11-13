@@ -1,9 +1,9 @@
 import React from "react";
 import "../styles/StationList.css";
-import type { RadioStation } from "../types/types";
+import type { Playlist, RadioStation } from "../types/types";
 
 interface StationProps {
-  stations: RadioStation[];
+  stations: Playlist[];
   onStationSelect: (station: RadioStation) => void;
 }
 

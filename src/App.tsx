@@ -1,19 +1,19 @@
 import { useState, useEffect } from "react";
-import type { RadioStream } from "./types/types";
+import type { Playlist as PlaylistType, RadioStream } from "./types/types";
 import "./App.css";
-import TabContainer from "./components/TabContainer";
 import type { TabData } from "./components/TabContainer";
+import TabContainer from "./components/TabContainer";
 import SenderList from "./components/SenderList";
 import FavoriteStations from "./components/FavoriteStations";
 import Settings from "./components/Settings";
+import Playlist from "./components/PlayList";
 import { PlayerControl } from "./components/PlayerControl";
-import type { RadioStation } from "../src/types/types";
 import { fetchMPDPlaylists } from "../src/data/fetchMPDPlaylists";
 import { useRecoilState } from "recoil";
 import { selectedMpdUrlState } from "../src/state/mpdUrls";
 import { useLocalStorageCleanup } from "../src/utils/localStorageCleanup";
-import "./styles/UpdateNotification.css";
 import { safeGetItem, safeSetItem } from "./utils/storageUtils";
+import "./styles/UpdateNotification.css";
 
 function App() {
   // Bereinige localStorage beim App-Start
@@ -25,7 +25,8 @@ function App() {
     useState<boolean>(false);
 
   const [selectedUrl] = useRecoilState(selectedMpdUrlState);
-  const [stations, setStations] = useState<RadioStation[]>([]);
+  const [stations, setStations] = useState<PlaylistType[]>([]);
+  const [playlists, setPlaylists] = useState<PlaylistType[]>([]);
   const [favoriteStreams, setFavoriteStreams] = useState<RadioStream[]>(
     safeGetItem<RadioStream[]>("favoriteStreams", []),
   );
@@ -52,7 +53,10 @@ function App() {
 
   useEffect(() => {
     console.log("App selectedUrl:", selectedUrl);
-    // Lade Playlists vom MPD-Server, wenn sich die URL ändert
+    if (!selectedUrl) {
+      console.warn("Keine URL ausgewählt");
+      return;
+    }
     const loadStations = async () => {
       if (!selectedUrl) {
         console.warn("Keine URL ausgewählt");
@@ -60,19 +64,36 @@ function App() {
       }
 
       try {
-        const apiUrl = `${selectedUrl}/listplaylists`;
+        const apiUrl = `${selectedUrl}/getPlaylistsByType?type=m3u`;
         console.log("Versuche Playlists zu laden von:", apiUrl);
-        const stations = await fetchMPDPlaylists(apiUrl);
-        setStations(stations);
+        const response = await fetchMPDPlaylists(apiUrl);
+        setStations(response);
       } catch (e) {
         console.error("Fehler beim Laden der Stationen:", e);
         setStations([]);
       }
     };
 
-    // Umgeben Sie den Aufruf mit einem try-catch-Block
+    const loadPlaylists = async () => {
+      if (!selectedUrl) {
+        console.warn("Keine URL ausgewählt");
+        return;
+      }
+
+      try {
+        const apiUrl = `${selectedUrl}/getPlaylistsByType?type=tidal`;
+        console.log("Versuche Playlists zu laden von:", apiUrl);
+        const response = await fetchMPDPlaylists(apiUrl);
+        setPlaylists(response);
+      } catch (e) {
+        console.error("Fehler beim Laden der Playlists:", e);
+        setPlaylists([]);
+      }
+    };
+
     try {
       loadStations();
+      loadPlaylists();
     } catch (error) {
       console.error("Unerwarteter Fehler:", error);
     }
@@ -133,6 +154,17 @@ function App() {
 
   // Tab-Definition
   const tabs: TabData[] = [
+    {
+      id: "tidal",
+      label: "Tidal",
+      content: (
+        <Playlist
+          playlists={playlists}
+          favoriteStreams={favoriteStreams}
+          onToggleFavorite={toggleFavorite}
+        />
+      ),
+    },
     {
       id: "sender",
       label: "Sender",

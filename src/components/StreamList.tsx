@@ -5,7 +5,6 @@ import { useAudioPlayer } from "../hooks/useAudioPlayer";
 import { useRecoilState } from "recoil";
 import { selectedMpdUrlState } from "../state/mpdUrls";
 import { radioModeState } from "../state/radioMode";
-// import { actStream } from "../state/actStream";
 import { fetchMPDStreams } from "../data/fetchMPDPlaylists";
 import { playStream } from "../utils/playStream";
 
@@ -25,14 +24,13 @@ export const StreamList: React.FC<StreamListProps> = ({
   const [streams, setStreams] = useState<RadioStream[]>([]);
   const [selectedUrl] = useRecoilState(selectedMpdUrlState);
   const [radioMode] = useRecoilState(radioModeState);
-  // const [setActStreamState] = useRecoilState(actStream);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { isPlaying, currentUrl } = useAudioPlayer();
 
   useEffect(() => {
     if (!station?.name || !selectedUrl) return;
-    // Lade Playlists vom MPD-Server, wenn sich die URL ändert
+
     const loadStreams = async () => {
       setIsLoading(true);
       setError(null);
@@ -40,8 +38,8 @@ export const StreamList: React.FC<StreamListProps> = ({
       try {
         const apiUrl = `${selectedUrl}/playlistcontent?name=${station.name}`;
         console.log("Loading streams from:", apiUrl);
-        const streams = await fetchMPDStreams(apiUrl);
-        setStreams(streams);
+        const fetchedStreams = await fetchMPDStreams(apiUrl);
+        setStreams(fetchedStreams);
       } catch (e) {
         console.error("Error loading streams:", e);
         setError("Fehler beim Laden der Streams");
@@ -57,7 +55,7 @@ export const StreamList: React.FC<StreamListProps> = ({
   const handlePlayPress = async (stream: RadioStream) => {
     try {
       if (!selectedUrl) return;
-      playStream(stream, radioMode);
+      await playStream(stream, radioMode);
     } catch (error) {
       console.error("Error handling play press:", error);
     }
@@ -116,7 +114,6 @@ export const StreamList: React.FC<StreamListProps> = ({
                   )}
                   onClick={(event) => {
                     event.stopPropagation();
-
                     onToggleFavorite(stream);
                   }}
                 >

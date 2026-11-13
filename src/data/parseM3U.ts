@@ -31,6 +31,7 @@ export function parseM3UToStations(m3u: string): RadioStation[] {
           id: `${idCounter}`,
           name: stationName,
           streams: [],
+          url: '', // Optional, kann leer bleiben
         };
         stations.push(station);
         idCounter++;

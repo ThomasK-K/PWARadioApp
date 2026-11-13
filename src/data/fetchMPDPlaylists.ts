@@ -1,4 +1,4 @@
-import type { RadioStation, RadioStream } from '../types/types';
+import type { Playlist, RadioStation, RadioStream } from '../types/types';
 
 // Beispiel für Mopidy/MPD REST API Antwort:
 // [
@@ -22,7 +22,7 @@ export async function fetchMPDPlaylists1(apiUrl: string): Promise<RadioStation[]
   }));
 }
 
-export async function fetchMPDPlaylists(apiUrl: string): Promise<RadioStation[]> {
+export async function fetchMPDPlaylists(apiUrl: string): Promise<Playlist[]> {
   try {
     const response = await fetch(apiUrl);
     if (!response.ok) {
@@ -33,17 +33,20 @@ export async function fetchMPDPlaylists(apiUrl: string): Promise<RadioStation[]>
     const playlists = await response.json();
     
     // Verschiedene API-Antwortformate behandeln
-    if (playlists.data && Array.isArray(playlists.data)) {
-      // Format: { data: [...] }
+    // if (playlists.data && Array.isArray(playlists.data)) {
+    //   // Format: { data: [...] }
+    //   return playlists.data.map((pl: any, idx: number) => ({
+    //     id: String(idx + 1),
+    //     name: pl || `Playlist ${idx + 1}`
+    //     uri: pl.uri || `playlist-${idx + 1}`
+    //   }));
+    // } else 
+    if (Array.isArray(playlists.data)) {
+      // Format: [...] (direktes Array)
       return playlists.data.map((pl: any, idx: number) => ({
         id: String(idx + 1),
-        name: pl || `Playlist ${idx + 1}`
-      }));
-    } else if (Array.isArray(playlists)) {
-      // Format: [...] (direktes Array)
-      return playlists.map((pl: any, idx: number) => ({
-        id: String(idx + 1),
-        name: typeof pl === 'object' ? (pl.name || `Playlist ${idx + 1}`) : pl || `Playlist ${idx + 1}`
+        name: typeof pl === 'object' ? (pl.playlist.name || `Playlist ${idx + 1}`) : pl || `Playlist ${idx + 1}`,
+        url: typeof pl === 'object' ? (pl.playlisturi || `playlist-${idx + 1}`) : undefined
       }));
     } else {
       console.warn("Unerwartetes API-Format:", playlists);

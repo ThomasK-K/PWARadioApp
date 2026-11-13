@@ -2,10 +2,10 @@ import React, { useState } from "react";
 import "../styles/Sender.css";
 import { StationList } from "./StationList";
 import { StreamList } from "./StreamList";
-import type { RadioStation, RadioStream } from "../types/types";
+import type { Playlist, RadioStation, RadioStream } from "../types/types";
 
 interface SenderProps {
-  stations: RadioStation[];
+  stations: Playlist[];
   favoriteStreams: RadioStream[];
   onToggleFavorite: (stream: RadioStream) => void;
 }

@@ -1,11 +1,3 @@
-export interface RadioStation {
-  id?: string;
-  name: string;
-  url: string;
-  imageUrl?: string; // Optional Bild-URL für die Station
-  streams?: RadioStream[]; // Optional streams array for the station
-}
-
 export interface RadioStream {
   id?: string; // Optional ID for the stream
   name: string;
@@ -23,14 +15,14 @@ interface Album {
   date: string; // Release date in ISO format
 }
 
-interface Track {
-  file: string;
-  title: string;
-  artist: string;
-  album: string;
-  time: string;
-  duration: number; // Duration in seconds
-}
+// interface Track {
+//   file: string;
+//   title: string;
+//   artist: string;
+//   album: string;
+//   time: string;
+//   duration: number; // Duration in seconds
+// }
 
 export interface TrackPlaylist {
   name: string;
@@ -44,8 +36,23 @@ export interface TrackPlaylist {
 }
 
 export interface Playlist {
+  id?: string;
   name: string;
-  uri: string;
+  url: string;
+  imageUrl?: string; // Optional Bild-URL für die Station
+}
+
+export interface RadioStation {
+  id?: string;
+  name: string;
+  url: string;
+  imageUrl?: string; // Optional Bild-URL für die Station
+  streams?: RadioStream[]; // Optional streams array for the station
+}
+export interface Track {
+  id?: string;
+  name: string;
+  url: string;
 }
 
 export interface Tracklist {
