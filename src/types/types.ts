@@ -53,6 +53,7 @@ export interface Track {
   id?: string;
   name: string;
   url: string;
+  artists?: Artist[];
 }
 
 export interface Tracklist {

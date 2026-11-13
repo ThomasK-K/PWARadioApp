@@ -55,7 +55,7 @@ export const StreamList: React.FC<StreamListProps> = ({
   const handlePlayPress = async (stream: RadioStream) => {
     try {
       if (!selectedUrl) return;
-      await playStream(stream, radioMode);
+      await playStream(stream, radioMode,selectedUrl);
     } catch (error) {
       console.error("Error handling play press:", error);
     }

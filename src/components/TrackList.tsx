@@ -46,7 +46,8 @@ export const Tracklist: React.FC<TracklistProps> = ({
           ? data.data.map((track: any, index: number) => ({
               id: String(index + 1),
               name: track.name || track.title || track.file || `Track ${index + 1}`,
-              url: track.url || track.file || "",
+              url: track.uri || track.file || track.url || "",
+              artists: track.artists || [],
             }))
           : [];
 
@@ -66,7 +67,7 @@ export const Tracklist: React.FC<TracklistProps> = ({
   const handlePlayPress = async (track: Track) => {
     try {
       if (!track.url) return;
-      await playStream(track, radioMode);
+      await playStream(track, radioMode,selectedUrl);
     } catch (error) {
       console.error("Error handling play press:", error);
     }
@@ -101,7 +102,9 @@ export const Tracklist: React.FC<TracklistProps> = ({
                 >
                   <div className="stream-info">
                     <div className="stream-name">{track.name}</div>
+                     <div className="stream-artist">{track.artists?.[0]?.name || "Unbekannt"}</div>
                   </div>
+                 
                   <div className="play-button">
                     {isLoading && currentUrl === track.url ? (
                       <span className="material-icons">radio</span>

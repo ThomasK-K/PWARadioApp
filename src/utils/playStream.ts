@@ -1,9 +1,9 @@
 // import { useAudioPlayer } from "../hooks/useAudioPlayer";
 // import { selectedMpdUrlState } from "../state/mpdUrls";
 import type { RadioStream } from "../types/types";
-// import { useRecoilState } from "recoil";
 
-export const playStream = async (stream: RadioStream, radioMode: string) : Promise<void> => {
+
+export const playStream = async (track: RadioStream, radioMode: string, selectedUrl: string) : Promise<void> => {
   // const { play } = useAudioPlayer();
   // const [selectedUrl] = useRecoilState(selectedMpdUrlState);
 
@@ -13,8 +13,8 @@ export const playStream = async (stream: RadioStream, radioMode: string) : Promi
       // await play(stream.url);
     } else if (radioMode === "mpd") {
       // setActStreamState(stream.name);
-      const selectedUrl = "https://musicpi.tkk.home64.de/player"; // Replace with actual selected URL
-      await fetch(`${selectedUrl}/playsong?name=${stream.url}`, {
+      // !selectedUrl && throw new Error("Keine URL ausgewählt");
+      await fetch(`${selectedUrl}/playuri?uri=${track.url}`, {
         method: "GET",
       });
     }
