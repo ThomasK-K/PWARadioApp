@@ -7,9 +7,7 @@ import { useAudioPlayer } from "../hooks/useAudioPlayer";
 import { songUpdateInterval } from "../state/songInterval";
 import { safeGetItem } from "../utils/storageUtils";
 import { actStream } from "../state/actStream";
-
-// Default placeholder album art
-const DEFAULT_ALBUM_ART = "https://placehold.co/300x300?text=No+Album+Art";
+import defaultAlbumArt from "../assets/no-album-art.svg";
 
 // --- Helper Components ---
 
@@ -51,6 +49,7 @@ export const PlayerControl: React.FC = () => {
   const [songData, setSongData] = useState<{
     title: string;
     artist: string;
+    file?: string;
     album: string;
     albumName: string;
   } | null>(null);
@@ -97,7 +96,7 @@ export const PlayerControl: React.FC = () => {
     // Setup interval for updates
     intervalId = window.setInterval(
       getCurrentSong,
-      songInterval * 1000 || 5000
+      songInterval * 1000 || 5000,
     );
 
     // Cleanup function
@@ -161,36 +160,40 @@ export const PlayerControl: React.FC = () => {
       {songData && (
         <div className="player-info">
           <div className="player-song-info">
-            <p>
-              <strong>{radioMode}</strong> Player
-            </p>
-            <p>
-              <strong>{radioMode}</strong> Player
-            </p>
-            {songData.artist.startsWith("https://") ?(
-             <p className="player-song-title">
-              {songData.artist || "Unbekannter Künstler"} -{" "}
-              {songData.title || "Unbekannter Titel"}
-            </p>):(
-              <div>
-            <img
-              src={songData.album || DEFAULT_ALBUM_ART}
-              alt={`Album Art: ${songData.albumName || "Unknown Album"}`}
-              className="player-album-art"
-              onError={(e) => {
-                (e.target as HTMLImageElement).src = DEFAULT_ALBUM_ART;
-              }}
-            />
-            <p className="player-song-album">
-              Album: {songData.albumName || "Unbekannt"}
-            </p>
-            <p className="player-song-artist">
-              { songData.artist ||"Unbekannter Künstler"}
-            </p></div>
+            {songData.file?.startsWith("tidal") ? (
+              <p>Tidal</p>
+            ) : (
+              <p>Station: </p>
             )}
-            
-            
+
+            {songData.album ? (
+              <div>
+                <img
+                  src={songData.album || defaultAlbumArt}
+                  alt={`Album Art: ${songData.albumName || "Unknown Album"}`}
+                  className="player-album-art"
+                  onError={(e) => {
+                    const image = e.currentTarget;
+                    if (image.src !== defaultAlbumArt) {
+                      image.src = defaultAlbumArt;
+                    } else {
+                      image.hidden = true;
+                    }
+                  }}
+                />
+                <p className="player-song-album">
+                  Album: {songData.albumName || "Unbekannt"}
+                </p>
+              </div>
+            ) : (
+              ""
+            )}
           </div>
+          <p className="player-song-artist">
+            {songData.artist || "Unbekannter Künstler"}
+            {" - "}
+            {songData.title || "Unbekannter Titel"}
+          </p>
         </div>
       )}
 
@@ -239,12 +242,15 @@ export const PlayerControl: React.FC = () => {
       {selectedUrl && (
         <div>
           <div className="player-url">URL: {selectedUrl}</div>
-          <div className="player-stream">Stream: {actStreamState}</div>
+          <div className="player-stream">
+            Stream: {actStreamState}
+            <p>{songData?.file || "Keine Station ausgewählt"}</p>
+          </div>
         </div>
       )}
-      {playerState?.bitrate && (
+      {/* {playerState?.bitrate && (
         <div className="player-bitrate">Bitrate: {playerState.bitrate}</div>
-      )}
+      )} */}
 
       {(error || audioError) && (
         <div className="player-error">{error || audioError}</div>

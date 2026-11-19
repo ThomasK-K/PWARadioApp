@@ -4,9 +4,8 @@ import type { RadioStation, RadioStream } from "../types/types";
 import { useAudioPlayer } from "../hooks/useAudioPlayer";
 import { useRecoilState } from "recoil";
 import { selectedMpdUrlState } from "../state/mpdUrls";
-import { radioModeState } from "../state/radioMode";
-import { fetchMPDStreams } from "../data/fetchMPDPlaylists";
-import { playStream } from "../utils/playStream";
+// import { radioModeState } from "../state/radioMode";
+import { playPlaylist } from "../utils/playStream";
 
 interface StreamListProps {
   station?: RadioStation;
@@ -23,7 +22,7 @@ export const StreamList: React.FC<StreamListProps> = ({
 }) => {
   const [streams, setStreams] = useState<RadioStream[]>([]);
   const [selectedUrl] = useRecoilState(selectedMpdUrlState);
-  const [radioMode] = useRecoilState(radioModeState);
+  // const [radioMode] = useRecoilState(radioModeState);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { isPlaying, currentUrl } = useAudioPlayer();
@@ -37,9 +36,22 @@ export const StreamList: React.FC<StreamListProps> = ({
 
       try {
         const apiUrl = `${selectedUrl}/playlistcontent?name=${station.name}`;
-        console.log("Loading streams from:", apiUrl);
-        const fetchedStreams = await fetchMPDStreams(apiUrl);
-        setStreams(fetchedStreams);
+        const response = await fetch(apiUrl);
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+        const data = await response.json();
+        const parsedTracks = Array.isArray(data?.data)
+          ? data.data.map((track: any, index: number) => ({
+              id: String(index + 1),
+              name:
+                track.name || track.title || track.file || `Track ${index + 1}`,
+              url: track.uri || track.file || track.url || "",
+            }))
+          : [];
+
+        setStreams(parsedTracks);
       } catch (e) {
         console.error("Error loading streams:", e);
         setError("Fehler beim Laden der Streams");
@@ -52,14 +64,22 @@ export const StreamList: React.FC<StreamListProps> = ({
     loadStreams();
   }, [station?.name, selectedUrl]);
 
-  const handlePlayPress = async (stream: RadioStream) => {
+  const handlePlayPress = async (stream: RadioStream | string | undefined) => {
     try {
-      if (!selectedUrl) return;
-      await playStream(stream, radioMode,selectedUrl);
+      if (!stream) return;
+      // await playplaylist(stationName);
     } catch (error) {
       console.error("Error handling play press:", error);
     }
   };
+  const handlePlayPlaylist = async (stationName: string | undefined) => {
+    try {
+      if (!stationName) return;
+      await playPlaylist(stationName,selectedUrl);
+    } catch (error) {
+      console.error("Error handling play playlist:", error);
+    }
+  }
 
   return (
     <div className="stream-list-container">
@@ -67,7 +87,13 @@ export const StreamList: React.FC<StreamListProps> = ({
         <button className="back-button" onClick={onBack} aria-label="Zurück">
           <span className="material-icons">arrow_back</span>
         </button>
-        <h2>{station?.name || "Streams"}</h2>
+
+        <button
+          className={"stream-button"}
+          onClick={() => handlePlayPlaylist(station?.name)}
+        >
+          <h2>{station?.name || "Streams"}</h2>
+        </button>
       </div>
 
       {error && <div className="error-message">{error}</div>}

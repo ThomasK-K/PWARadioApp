@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import "../styles/Sender.css";
-
+// import { useRecoilState } from "recoil";
+// import { selectedMpdUrlState } from "../state/mpdUrls";
 import type { Playlist as PlaylistType, RadioStream } from "../types/types";
 import TrackList from "./TrackList";
 
@@ -15,7 +16,10 @@ const Playlist: React.FC<PlaylistProps> = ({
   favoriteStreams,
   onToggleFavorite,
 }) => {
-  const [selectedPlaylist, setSelectedPlaylist] = useState<PlaylistType | null>(null);
+  //  const [selectedUrl] = useRecoilState(selectedMpdUrlState);
+  const [selectedPlaylist, setSelectedPlaylist] = useState<PlaylistType | null>(
+    null,
+  );
 
   const handlePlaylistSelect = (playlist: PlaylistType) => {
     console.log("Ausgewählte Playlist:", playlist);
@@ -56,6 +60,7 @@ const Playlist: React.FC<PlaylistProps> = ({
               >
                 <div className="station-content">
                   <div className="station-name">{playlist.name}</div>
+                  <span className="material-icons">{"play_arrow"}66</span>
                 </div>
               </li>
             ))}

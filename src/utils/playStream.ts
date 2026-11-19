@@ -22,3 +22,15 @@ export const playStream = async (track: RadioStream, radioMode: string, selected
     console.log("Error handling play press:", error);
   }
 };
+
+export const playPlaylist = async (stationName: string,selectedUrl: string) : Promise<void> => {
+  try {
+    
+      await fetch(`${selectedUrl}/playplaylist?name=${stationName}`, {
+        method: "GET",
+      });
+    }
+  catch (error) {
+    console.log("Error handling play press:", error);
+  }
+};

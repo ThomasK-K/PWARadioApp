@@ -15,15 +15,6 @@ interface Album {
   date: string; // Release date in ISO format
 }
 
-// interface Track {
-//   file: string;
-//   title: string;
-//   artist: string;
-//   album: string;
-//   time: string;
-//   duration: number; // Duration in seconds
-// }
-
 export interface TrackPlaylist {
   name: string;
   url: string;

@@ -39,6 +39,7 @@ const SenderList: React.FC<SenderProps> = (props) => {
       ) : (
         <StationList
           stations={stations}
+          onBack={handleBackToStations}
           // favoriteStreams={favoriteStreams}
           onStationSelect={handleStationSelect}
           // onToggleFavorite={onToggleFavorite}

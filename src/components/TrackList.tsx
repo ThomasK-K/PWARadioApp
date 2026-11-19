@@ -4,7 +4,7 @@ import { useRecoilState } from "recoil";
 import { selectedMpdUrlState } from "../state/mpdUrls";
 import { useAudioPlayer } from "../hooks/useAudioPlayer";
 import { radioModeState } from "../state/radioMode";
-import { playStream } from "../utils/playStream";
+import { playStream, playPlaylist } from "../utils/playStream";
 
 interface TracklistProps {
   selectedplaylist: Playlist;
@@ -45,7 +45,8 @@ export const Tracklist: React.FC<TracklistProps> = ({
         const parsedTracks = Array.isArray(data?.data)
           ? data.data.map((track: any, index: number) => ({
               id: String(index + 1),
-              name: track.name || track.title || track.file || `Track ${index + 1}`,
+              name:
+                track.name || track.title || track.file || `Track ${index + 1}`,
               url: track.uri || track.file || track.url || "",
               artists: track.artists || [],
             }))
@@ -67,10 +68,21 @@ export const Tracklist: React.FC<TracklistProps> = ({
   const handlePlayPress = async (track: Track) => {
     try {
       if (!track.url) return;
-      await playStream(track, radioMode,selectedUrl);
+      await playStream(track, radioMode, selectedUrl);
     } catch (error) {
       console.error("Error handling play press:", error);
     }
+  };
+  const handlePlayPlaylist = async (stationName: string | undefined) => {
+    try {
+      if (!stationName) return;
+      await playPlaylist(stationName, selectedUrl);
+    } catch (error) {
+      console.error("Error handling play playlist:", error);
+    }
+  };
+  const handleSearch = () => {
+    console.log("handlesearch");
   };
 
   return (
@@ -79,7 +91,12 @@ export const Tracklist: React.FC<TracklistProps> = ({
         <button className="back-button" onClick={onBack} aria-label="Zurück">
           <span className="material-icons">arrow_back</span>
         </button>
-        <h2>{selectedplaylist?.name || "Playlist"}</h2>
+        <button
+          className={"stream-button"}
+          onClick={() => handlePlayPlaylist(selectedplaylist?.name)}
+        >
+          <h2>{selectedplaylist?.name || "Playlist"}</h2>
+        </button>
       </div>
 
       {error && <div className="error-message">{error}</div>}
@@ -87,61 +104,73 @@ export const Tracklist: React.FC<TracklistProps> = ({
       {isLoading ? (
         <div className="loading-indicator">Lade Streams...</div>
       ) : (
-        <ul className="tracklist">
-          {tracks.map((track) => {
-            const isCurrentlyPlaying = currentUrl === track.url && isPlaying;
+        <div>
+          <button
+            className="stream-button"
+            onClick={() => handleSearch()}
+            disabled={isLoading}
+          >
+            Suche
+          </button>
+          <ul className="tracklist">
+            {tracks.map((track) => {
+              const isCurrentlyPlaying = currentUrl === track.url && isPlaying;
 
-            return (
-              <li key={track.id ?? track.name} className="track-item">
-                <button
-                  className={`stream-button ${
-                    isCurrentlyPlaying ? "playing" : ""
-                  }`}
-                  onClick={() => handlePlayPress(track)}
-                  disabled={isLoading}
-                >
-                  <div className="stream-info">
-                    <div className="stream-name">{track.name}</div>
-                     <div className="stream-artist">{track.artists?.[0]?.name || "Unbekannt"}</div>
-                  </div>
-                 
-                  <div className="play-button">
-                    {isLoading && currentUrl === track.url ? (
-                      <span className="material-icons">radio</span>
-                    ) : (
-                      <span className="material-icons">
-                        {isCurrentlyPlaying ? "pause" : "play_arrow"}
-                      </span>
+              return (
+                <li key={track.id ?? track.name} className="track-item">
+                  <button
+                    className={`stream-button ${
+                      isCurrentlyPlaying ? "playing" : ""
+                    }`}
+                    onClick={() => handlePlayPress(track)}
+                    disabled={isLoading}
+                  >
+                    <div className="stream-info">
+                      <div className="stream-name">{track.name}</div>
+                      <div className="stream-artist">
+                        {track.artists?.[0]?.name || "Unbekannt"}
+                      </div>
+                    </div>
+
+                    <div className="play-button">
+                      {isLoading && currentUrl === track.url ? (
+                        <span className="material-icons">radio</span>
+                      ) : (
+                        <span className="material-icons">
+                          {isCurrentlyPlaying ? "pause" : "play_arrow"}
+                        </span>
+                      )}
+                    </div>
+                  </button>
+                  <button
+                    className="favorite-toggle"
+                    type="button"
+                    aria-label={
+                      favoriteStreams.some((s) => s.name === track.name)
+                        ? `${track.name} aus Favoriten entfernen`
+                        : `${track.name} zu Favoriten hinzufügen`
+                    }
+                    aria-pressed={favoriteStreams.some(
+                      (s) => s.name === track.name,
                     )}
-                  </div>
-                </button>
-                <button
-                  className="favorite-toggle"
-                  type="button"
-                  aria-label={
-                    favoriteStreams.some((s) => s.name === track.name)
-                      ? `${track.name} aus Favoriten entfernen`
-                      : `${track.name} zu Favoriten hinzufügen`
-                  }
-                  aria-pressed={favoriteStreams.some(
-                    (s) => s.name === track.name,
-                  )}
-                  onClick={(event) => {
-                    event.stopPropagation();
-                    onToggleFavorite(track);
-                  }}
-                >
-                  <span className="material-icons">
-                    {favoriteStreams.some((s) => s.name === track.name)
-                      ? "star"
-                      : "star_border"}
-                  </span>
-                </button>
-              </li>
-            );
-          })}
-        </ul>
-      )}
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      onToggleFavorite(track);
+                    }}
+                  >
+                    <span className="material-icons">
+                      {favoriteStreams.some((s) => s.name === track.name)
+                        ? "star"
+                        : "star_border"}
+                    </span>
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      )
+    }
     </div>
   );
 };
