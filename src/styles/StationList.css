@@ -60,7 +60,14 @@
   flex: 1;
   text-align: left;
 }
-
+.station-list-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--border-color, #ccc);
+}
 .favorite-toggle {
   display: grid;
   place-items: center;

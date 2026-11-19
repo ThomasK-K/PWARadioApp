@@ -24,14 +24,8 @@ export const StationList: React.FC<StationProps> = ({
   return (
     <div className="station-list">
       <ul className="station-container">
-        <li key={0} className="station-item" onClick={() => handlePlaylist()}>
-          <div className="station-content">
-            <div className="station-logo-container"></div>
-            <div className="station-name">Playlist anlegen</div>
-          </div>
-        </li>
         {doPlHandling ? (
-          <div className="stream-list-header">
+          <div className="station-list-header">
             <button
               className="back-button"
               onClick={() => {
@@ -41,14 +35,16 @@ export const StationList: React.FC<StationProps> = ({
             >
               <span className="material-icons">arrow_back</span>
             </button>
-            <h3>Neue Playlist</h3>
-            <div className="url-input-container">
+
+            <h3></h3>
+
+            <div className="pl-input-container">
               <input
                 type="text"
                 value={plName}
                 onChange={(e) => setPlName(e.target.value)}
                 placeholder="Gib einen Namen ein"
-                className="url-input"
+                className="pl-input"
               />
               <button onClick={handlecreatePlaylist} className="url-button">
                 {"Hinzufügen"}
@@ -56,38 +52,50 @@ export const StationList: React.FC<StationProps> = ({
             </div>
           </div>
         ) : (
-          stations.map((station) => (
+          <div>
             <li
-              key={station.id}
+              key={0}
               className="station-item"
-              onClick={() => onStationSelect(station)}
-              onKeyDown={(event) => {
-                if (
-                  event.target === event.currentTarget &&
-                  (event.key === "Enter" || event.key === " ")
-                ) {
-                  event.preventDefault();
-                  onStationSelect(station);
-                }
-              }}
-              tabIndex={0}
+              onClick={() => handlePlaylist()}
             >
               <div className="station-content">
-                <div className="station-logo-container">
-                  {station.imageUrl ? (
-                    <img
-                      src={station.imageUrl}
-                      alt={station.name}
-                      className="station-logo"
-                    />
-                  ) : (
-                    <div className="placeholder-logo"></div>
-                  )}
-                </div>
-                <div className="station-name">{station.name}</div>
+                <div className="station-logo-container"></div>
+                <div className="station-name">Playlist anlegen</div>
               </div>
             </li>
-          ))
+            {stations.map((station) => (
+              <li
+                key={station.id}
+                className="station-item"
+                onClick={() => onStationSelect(station)}
+                onKeyDown={(event) => {
+                  if (
+                    event.target === event.currentTarget &&
+                    (event.key === "Enter" || event.key === " ")
+                  ) {
+                    event.preventDefault();
+                    onStationSelect(station);
+                  }
+                }}
+                tabIndex={0}
+              >
+                <div className="station-content">
+                  <div className="station-logo-container">
+                    {station.imageUrl ? (
+                      <img
+                        src={station.imageUrl}
+                        alt={station.name}
+                        className="station-logo"
+                      />
+                    ) : (
+                      <div className="placeholder-logo"></div>
+                    )}
+                  </div>
+                  <div className="station-name">{station.name}</div>
+                </div>
+              </li>
+            ))}
+          </div>
         )}
       </ul>
     </div>

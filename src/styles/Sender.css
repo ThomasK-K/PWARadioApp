@@ -63,3 +63,17 @@
   transform: translateY(0);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
+.pl-input-container {
+  display: flex;
+  margin-bottom: 1rem;
+  color: var(--text-color, #333);
+}
+.pl-input {
+  flex: 1;
+  padding: 0.5rem;
+  border: 1px solid var(--border-color, #ccc);
+  border-radius: 4px 0 0 4px;
+  font-size: 1rem;
+  background-color: var(--input-bg, #fff);
+  color: var(--text-color, #333);
+}
