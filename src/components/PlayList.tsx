@@ -1,8 +1,12 @@
 import React, { useState } from "react";
 import "../styles/PlayList.css";
-// import { useRecoilState } from "recoil";
-// import { selectedMpdUrlState } from "../state/mpdUrls";
-import type { Playlist as PlaylistType, RadioStream } from "../types/types";
+import { useRecoilState } from "recoil";
+import { selectedMpdUrlState } from "../state/mpdUrls";
+import type {
+  Playlist as PlaylistType,
+  RadioStream,
+  Track,
+} from "../types/types";
 import TrackList from "./TrackList";
 
 interface PlaylistProps {
@@ -23,10 +27,18 @@ const result = {
       duration: 175,
     },
     {
-      file: "tidal:track:6369964:92472696:92472705",
+      file: "tidal:track:6369964:92472696:92479999",
       title: "What do you want from live",
       artist: "Tubes",
       album: "Live",
+      time: "175",
+      duration: 175,
+    },
+    {
+      file: "tidal:track:6369964:92472696:92478888",
+      title: "hells bells",
+      artist: "acdc",
+      album: "ballbraeker",
       time: "175",
       duration: 175,
     },
@@ -39,21 +51,62 @@ const Playlist: React.FC<PlaylistProps> = ({
   onToggleFavorite,
 }) => {
   //  const [selectedUrl] = useRecoilState(selectedMpdUrlState);
+  const [selectedUrl] = useRecoilState(selectedMpdUrlState);
   const [selectedPlaylist, setSelectedPlaylist] = useState<PlaylistType | null>(
     null,
   );
   const [doSuche, setDoSuche] = useState<Boolean>(false);
   const [queryCategory, setQueryCategory] = useState<string>("");
   const [value, setValue] = useState<string>("");
+  const [selectedTracks, setSelectedTracks] = useState<Track[]>([]);
+
+  const handleSuche = async () => {
+    setDoSuche(true);
+    let apiUrl = "";
+          console.log("suche ...", value, queryCategory);
+
+    if (queryCategory !== ""){
+      if (queryCategory === "album") {
+        apiUrl = `${selectedUrl}/searchbyalbum?${queryCategory}=${value}`;
+      } else if (queryCategory === "title") {
+        apiUrl = `${selectedUrl}/searchbytitle?${queryCategory}=${value}`;
+      }
+      else {
+        apiUrl = `${selectedUrl}/search?${queryCategory}=${value}`;
+      }
+      const response = await fetch(apiUrl);
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+      const data = await response.json();
+      console.log("suche ...", value, queryCategory, data);
+    }
+  };
 
   const handlePlaylistSelect = (playlist: PlaylistType) => {
     console.log("Ausgewählte Playlist:", playlist);
     setSelectedPlaylist(playlist);
   };
 
-  const handleSuche = () => {
-    setDoSuche(true);
-    console.log("suche ...");
+  const setList = (checked: boolean, index: number) => {
+    var newList = [];
+
+    if (checked) // add to playlist
+    {
+      newList.push(result.data[index]);
+
+      const track = result.data[index];
+      setSelectedTracks((prev) => [
+        ...prev,
+        { ...track, name: track.title, url: track.file },
+      ]);
+    } else {
+      const track = result.data[index];
+      setSelectedTracks((prev) =>
+        prev.filter((itm) => itm.file !== track.file),
+      );
+    }
+    console.log("toggle:", checked, selectedTracks);
   };
 
   const handleBackToStations = () => {
@@ -88,8 +141,9 @@ const Playlist: React.FC<PlaylistProps> = ({
             value={queryCategory}
             onChange={(e) => setQueryCategory(e.target.value)}
           >
+            <option value="empty"></option>
             <option value="album">Album</option>
-            <option value="titel">Titel</option>
+            <option value="title">Titel</option>
             <option value="artist">Artist</option>
           </select>
         </div>
@@ -148,32 +202,31 @@ const Playlist: React.FC<PlaylistProps> = ({
 
       <ul className="searchresult-container">
         <li>
-            <div className="searchresult-row">
-              <div className="checkbox-column">
-                {/* <input type="checkbox" /> */}
-              </div>
-              <div>
-                <strong>Titel</strong>
-        
-              </div>
-              <div>
-                <strong>Album</strong>
-   
-              </div>
-              <div>
-                <strong>Artist</strong>
-    
-              </div>
+          <div className="searchresult-row">
+            <div className="checkbox-column">
+              {/* <input type="checkbox" /> */}
             </div>
-          </li>
+            <div>
+              <strong>Titel</strong>
+            </div>
+            <div>
+              <strong>Album</strong>
+            </div>
+            <div>
+              <strong>Artist</strong>
+            </div>
+          </div>
+        </li>
         {result.data.map((itm, index) => (
           <li key={index}>
             <div className="searchresult-row">
               <div className="checkbox-column">
-                <input type="checkbox" />
+                <input
+                  type="checkbox"
+                  onChange={(e) => setList(e.target.checked, index)}
+                />
               </div>
               <div>
-            
                 <span>{itm.title}</span>
               </div>
               <div>
