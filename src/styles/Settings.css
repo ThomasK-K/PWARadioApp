@@ -50,36 +50,6 @@
   min-width: 100px;
 }
 
-.color-options {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.color-option {
-  width: 2rem;
-  height: 2rem;
-  border-radius: 50%;
-  cursor: pointer;
-  border: 2px solid transparent;
-  transition: transform 0.2s, border-color 0.2s;
-}
-
-.color-option.active {
-  border-color: var(--text-color, #333);
-  transform: scale(1.1);
-}
-
-.color-option.blue {
-  background-color: #3a86ff;
-}
-
-.color-option.green {
-  background-color: #38b000;
-}
-
-.color-option.purple {
-  background-color: #8338ec;
-}
 
 .settings-input-container {
   display: flex;
@@ -206,7 +176,7 @@
   max-height: 300px;
   overflow-y: auto;
   padding: 0.5rem 0;
-
+  
 }
 
 .url-item {
@@ -226,7 +196,7 @@
 
 .url-item:hover {
   background-color: var(--hover-bg, #e6e6e6);
-
+  
 }
 
 .url-content {
@@ -303,4 +273,34 @@
   outline: none;
   border-color: var(--primary-color, #3a86ff);
   box-shadow: 0 0 0 2px rgba(58, 134, 255, 0.2);
+}
+.color-options {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.color-option {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: transform 0.2s, border-color 0.2s;
+}
+
+.color-option.active {
+  border-color: var(--text-color, #333);
+  transform: scale(1.1);
+}
+
+.color-option.blue {
+  background-color: #3a86ff;
+}
+
+.color-option.green {
+  background-color: #38b000;
+}
+
+.color-option.purple {
+  background-color: #8338ec;
 }

@@ -1,0 +1,34 @@
+.searchresult-container {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.searchresult-container li {
+  padding: 12px;
+  border-bottom: 1px solid #ddd;
+}
+
+.searchresult-row {
+  display: grid;
+  grid-template-columns: .1fr .5fr .5fr .5fr;
+  gap: .5px;
+}
+
+.searchresult-row div {
+  display: flex;;
+  flex-direction: column;
+}
+
+.searchresult-row strong {
+  font-weight: bold;
+  padding-bottom: 5px;
+  border-bottom: 1px solid #ccc;
+}
+
+.searchresult-row span {
+  padding-top: 5px;
+}
+.checkbox-column {
+  align-items: center;
+}

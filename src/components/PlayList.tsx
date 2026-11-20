@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import "../styles/Sender.css";
+import "../styles/PlayList.css";
 // import { useRecoilState } from "recoil";
 // import { selectedMpdUrlState } from "../state/mpdUrls";
 import type { Playlist as PlaylistType, RadioStream } from "../types/types";
@@ -11,6 +11,28 @@ interface PlaylistProps {
   onToggleFavorite: (stream: RadioStream) => void;
 }
 
+const result = {
+  success: true,
+  data: [
+    {
+      file: "tidal:track:6369964:92472696:92472705",
+      title: "Alphatier",
+      artist: "Adam Angst",
+      album: "Neintology",
+      time: "175",
+      duration: 175,
+    },
+    {
+      file: "tidal:track:6369964:92472696:92472705",
+      title: "What do you want from live",
+      artist: "Tubes",
+      album: "Live",
+      time: "175",
+      duration: 175,
+    },
+  ],
+};
+
 const Playlist: React.FC<PlaylistProps> = ({
   playlists,
   favoriteStreams,
@@ -20,19 +42,69 @@ const Playlist: React.FC<PlaylistProps> = ({
   const [selectedPlaylist, setSelectedPlaylist] = useState<PlaylistType | null>(
     null,
   );
+  const [doSuche, setDoSuche] = useState<Boolean>(false);
+  const [queryCategory, setQueryCategory] = useState<string>("");
+  const [value, setValue] = useState<string>("");
 
   const handlePlaylistSelect = (playlist: PlaylistType) => {
     console.log("Ausgewählte Playlist:", playlist);
     setSelectedPlaylist(playlist);
   };
 
+  const handleSuche = () => {
+    setDoSuche(true);
+    console.log("suche ...");
+  };
+
   const handleBackToStations = () => {
     setSelectedPlaylist(null);
   };
 
+  const sucheItem = (
+    <div className="station-list-header">
+      <button
+        className="back-button"
+        onClick={() => {
+          setDoSuche(false);
+        }}
+        aria-label="Zurück"
+      >
+        <span className="material-icons">arrow_back</span>
+      </button>
+      <div className="pl-group">
+        <div className="pl-item">
+          <span>Name: </span>
+          <input
+            type="text"
+            value={value}
+            onChange={(e) => setValue(e.target.value)}
+            placeholder="Gib einen Namen ein"
+            // className="pl-input"
+          />
+        </div>
+        <div className="pl-item">
+          <span>Typ: </span>
+          <select
+            value={queryCategory}
+            onChange={(e) => setQueryCategory(e.target.value)}
+          >
+            <option value="album">Album</option>
+            <option value="titel">Titel</option>
+            <option value="artist">Artist</option>
+          </select>
+        </div>
+        <button onClick={handleSuche} className="url-button">
+          {"Suche!"}
+        </button>
+      </div>
+    </div>
+  );
+
   return (
-    <div className="sender-component">
-      {selectedPlaylist ? (
+    <div className="searchresult-container">
+      {doSuche ? (
+        sucheItem
+      ) : selectedPlaylist ? (
         <TrackList
           selectedplaylist={selectedPlaylist}
           onBack={handleBackToStations}
@@ -42,6 +114,12 @@ const Playlist: React.FC<PlaylistProps> = ({
       ) : (
         <div className="station-list">
           <ul className="station-container">
+            <li key={0} className="station-item" onClick={() => handleSuche()}>
+              <div className="station-content">
+                <div className="station-logo-container"></div>
+                <div className="station-name">Suche ...</div>
+              </div>
+            </li>
             {playlists.map((playlist) => (
               <li
                 key={playlist.id ?? playlist.name}
@@ -67,6 +145,47 @@ const Playlist: React.FC<PlaylistProps> = ({
           </ul>
         </div>
       )}
+
+      <ul className="searchresult-container">
+        <li>
+            <div className="searchresult-row">
+              <div className="checkbox-column">
+                {/* <input type="checkbox" /> */}
+              </div>
+              <div>
+                <strong>Titel</strong>
+        
+              </div>
+              <div>
+                <strong>Album</strong>
+   
+              </div>
+              <div>
+                <strong>Artist</strong>
+    
+              </div>
+            </div>
+          </li>
+        {result.data.map((itm, index) => (
+          <li key={index}>
+            <div className="searchresult-row">
+              <div className="checkbox-column">
+                <input type="checkbox" />
+              </div>
+              <div>
+            
+                <span>{itm.title}</span>
+              </div>
+              <div>
+                <span>{itm.album}</span>
+              </div>
+              <div>
+                <span>{itm.artist}</span>
+              </div>
+            </div>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 };

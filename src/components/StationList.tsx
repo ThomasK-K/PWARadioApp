@@ -14,12 +14,13 @@ export const StationList: React.FC<StationProps> = ({
 }) => {
   const [doPlHandling, setDoPlaylistHandling] = useState<Boolean>(false);
   const [plName, setPlName] = useState<string>("");
+  const [uriScheme, setUriScheme] = useState<string>("");
   const handlePlaylist = () => {
     console.log("handlePLaylist ....");
     setDoPlaylistHandling(true);
   };
   const handlecreatePlaylist = () => {
-    console.log("cretate Playlist", plName);
+    console.log("create Playlist", plName, uriScheme);
   };
   return (
     <div className="station-list">
@@ -35,17 +36,28 @@ export const StationList: React.FC<StationProps> = ({
             >
               <span className="material-icons">arrow_back</span>
             </button>
-
             <h3></h3>
-
-            <div className="pl-input-container">
-              <input
-                type="text"
-                value={plName}
-                onChange={(e) => setPlName(e.target.value)}
-                placeholder="Gib einen Namen ein"
-                className="pl-input"
-              />
+            <div className="pl-group">
+              <div className="pl-item">
+                <span>Name: </span>
+                <input
+                  type="text"
+                  value={plName}
+                  onChange={(e) => setPlName(e.target.value)}
+                  placeholder="Gib einen Namen ein"
+                  // className="pl-input"
+                />
+              </div>
+              <div className="pl-item">
+                <span>Typ: </span>
+                  <select
+                    value={uriScheme}
+                    onChange={(e) => setUriScheme(e.target.value)}
+                  >
+                    <option value="tidal">Tidal</option>
+                    <option value="m3u">M3u Playlist</option>
+                  </select>
+              </div>
               <button onClick={handlecreatePlaylist} className="url-button">
                 {"Hinzufügen"}
               </button>

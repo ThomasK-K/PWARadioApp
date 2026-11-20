@@ -1,3 +1,47 @@
+
+.pl-input-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: stretch;
+  
+}
+.pl-group {
+  width: 100%;
+  background-color: var(--card-bg, #f7f7f7);
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+.pl-item {
+  display:flex;
+  justify-content:space-between;
+
+  margin-bottom: 1rem;
+  padding: 0.5rem 0;
+}
+
+.pl-item span {
+  font-weight: 500;
+  color: var(--text-color, #333);
+}
+.pl-item input {
+  padding: 0.5rem;
+  border-radius: 4px;
+  border: 1px solid var(--border-color, #ccc);
+  background-color: var(--input-bg, #fff);
+  min-width: 100px;
+}
+.pl-item select {
+  padding: 0.5rem;
+  border-radius: 4px;
+  border: 1px solid var(--border-color, #ccc);
+  background-color: var(--input-bg, #fff);
+  min-width: 200px;
+}
+
+
+
 .station-list {
   width: 100%;
   padding: 1rem;
