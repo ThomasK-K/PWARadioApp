@@ -15,35 +15,35 @@ interface PlaylistProps {
   onToggleFavorite: (stream: RadioStream) => void;
 }
 
-const result = {
-  success: true,
-  data: [
-    {
-      file: "tidal:track:6369964:92472696:92472705",
-      title: "Alphatier",
-      artist: "Adam Angst",
-      album: "Neintology",
-      time: "175",
-      duration: 175,
-    },
-    {
-      file: "tidal:track:6369964:92472696:92479999",
-      title: "What do you want from live",
-      artist: "Tubes",
-      album: "Live",
-      time: "175",
-      duration: 175,
-    },
-    {
-      file: "tidal:track:6369964:92472696:92478888",
-      title: "hells bells",
-      artist: "acdc",
-      album: "ballbraeker",
-      time: "175",
-      duration: 175,
-    },
-  ],
-};
+// const result1 = {
+//   success: true,
+//   data: [
+//     {
+//       file: "tidal:track:6369964:92472696:92472705",
+//       title: "Alphatier",
+//       artist: "Adam Angst",
+//       album: "Neintology",
+//       time: "175",
+//       duration: 175,
+//     },
+//     {
+//       file: "tidal:track:6369964:92472696:92479999",
+//       title: "What do you want from live",
+//       artist: "Tubes",
+//       album: "Live",
+//       time: "175",
+//       duration: 175,
+//     },
+//     {
+//       file: "tidal:track:6369964:92472696:92478888",
+//       title: "hells bells",
+//       artist: "acdc",
+//       album: "ballbraeker",
+//       time: "175",
+//       duration: 175,
+//     },
+//   ],
+// };
 
 const Playlist: React.FC<PlaylistProps> = ({
   playlists,
@@ -59,49 +59,50 @@ const Playlist: React.FC<PlaylistProps> = ({
   const [queryCategory, setQueryCategory] = useState<string>("");
   const [value, setValue] = useState<string>("");
   const [selectedTracks, setSelectedTracks] = useState<Track[]>([]);
+  const [tracklist,setTracklist] = useState<Track[]>([]);
 
   const handleSuche = async () => {
     setDoSuche(true);
     let apiUrl = "";
-          console.log("suche ...", value, queryCategory);
+    console.log("suche ...", value, queryCategory);
 
-    if (queryCategory !== ""){
+    if (queryCategory !== "") {
       if (queryCategory === "album") {
         apiUrl = `${selectedUrl}/searchbyalbum?${queryCategory}=${value}`;
       } else if (queryCategory === "title") {
         apiUrl = `${selectedUrl}/searchbytitle?${queryCategory}=${value}`;
-      }
-      else {
+      } else {
         apiUrl = `${selectedUrl}/search?${queryCategory}=${value}`;
       }
       const response = await fetch(apiUrl);
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}`);
       }
-      const data = await response.json();
-      console.log("suche ...", value, queryCategory, data);
+      const resp = await response.json();
+      // add to playlist
+      const tracks = resp.data as Track[]
+      console.log("suche ...", value, queryCategory,tracks);
+      setTracklist((prev) => [...prev, ...tracks]);
     }
   };
-
+// seletedTracks
   const handlePlaylistSelect = (playlist: PlaylistType) => {
     console.log("Ausgewählte Playlist:", playlist);
     setSelectedPlaylist(playlist);
   };
 
   const setList = (checked: boolean, index: number) => {
-    var newList = [];
+    const track = tracklist[index];
+    if (!track) return;
 
-    if (checked) // add to playlist
-    {
-      newList.push(result.data[index]);
-
-      const track = result.data[index];
+    if (checked) {
+      if (!track.file) return;
+      const url = track.file;
       setSelectedTracks((prev) => [
         ...prev,
-        { ...track, name: track.title, url: track.file },
+        { ...track, name: track.id ?? url, url },
       ]);
     } else {
-      const track = result.data[index];
       setSelectedTracks((prev) =>
         prev.filter((itm) => itm.file !== track.file),
       );
@@ -217,7 +218,7 @@ const Playlist: React.FC<PlaylistProps> = ({
             </div>
           </div>
         </li>
-        {result.data.map((itm, index) => (
+        {tracklist.map((itm, index) => (
           <li key={index}>
             <div className="searchresult-row">
               <div className="checkbox-column">
@@ -233,7 +234,7 @@ const Playlist: React.FC<PlaylistProps> = ({
                 <span>{itm.album}</span>
               </div>
               <div>
-                <span>{itm.artist}</span>
+                <span>{typeof itm.artist === "string" ? itm.artist : itm.artist?.name}</span>
               </div>
             </div>
           </li>

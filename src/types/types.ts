@@ -44,7 +44,10 @@ export interface Track {
   id?: string;
   name: string;
   url: string;
-  file?:string
+  file?: string;
+  title: string;
+  album?: string;
+  artist?: Artist;
   artists?: Artist[];
 }
 
