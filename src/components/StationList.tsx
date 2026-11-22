@@ -1,6 +1,9 @@
 import React, { useState } from "react";
 import "../styles/StationList.css";
 import type { Playlist, RadioStation } from "../types/types";
+import { createPlaylist } from "../utils/playlistUtils";
+import { useRecoilState } from "recoil";
+import { selectedMpdUrlState } from "../state/mpdUrls";
 
 interface StationProps {
   stations: Playlist[];
@@ -15,11 +18,18 @@ export const StationList: React.FC<StationProps> = ({
   const [doPlHandling, setDoPlaylistHandling] = useState<Boolean>(false);
   const [plName, setPlName] = useState<string>("");
   const [uriScheme, setUriScheme] = useState<string>("");
+  const [selectedUrl] = useRecoilState(selectedMpdUrlState);
+
+  const handleDeletePlaylist = (idx: number) => {
+    console.log("delete station", idx);
+  };
+
   const handlePlaylist = () => {
     console.log("handlePLaylist ....");
     setDoPlaylistHandling(true);
   };
-  const handlecreatePlaylist = () => {
+  const handlecreatePlaylist = async () => {
+    await createPlaylist(selectedUrl, plName, uriScheme);
     console.log("create Playlist", plName, uriScheme);
   };
   return (
@@ -50,13 +60,13 @@ export const StationList: React.FC<StationProps> = ({
               </div>
               <div className="pl-item">
                 <span>Typ: </span>
-                  <select
-                    value={uriScheme}
-                    onChange={(e) => setUriScheme(e.target.value)}
-                  >
-                    <option value="tidal">Tidal</option>
-                    <option value="m3u">M3u Playlist</option>
-                  </select>
+                <select
+                  value={uriScheme}
+                  onChange={(e) => setUriScheme(e.target.value)}
+                >
+                  <option value="tidal">Tidal</option>
+                  <option value="m3u">M3u Playlist</option>
+                </select>
               </div>
               <button onClick={handlecreatePlaylist} className="url-button">
                 {"Hinzufügen"}
@@ -75,7 +85,7 @@ export const StationList: React.FC<StationProps> = ({
                 <div className="station-name">Playlist anlegen</div>
               </div>
             </li>
-            {stations.map((station) => (
+            {stations.map((station, index) => (
               <li
                 key={station.id}
                 className="station-item"
@@ -104,6 +114,13 @@ export const StationList: React.FC<StationProps> = ({
                     )}
                   </div>
                   <div className="station-name">{station.name}</div>
+                <button
+                  onClick={() => handleDeletePlaylist(index)}
+                  className="action-button delete"
+                  aria-label="URL löschen"
+                >
+                  🗑️
+                </button>
                 </div>
               </li>
             ))}

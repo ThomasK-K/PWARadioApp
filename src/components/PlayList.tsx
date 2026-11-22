@@ -15,36 +15,6 @@ interface PlaylistProps {
   onToggleFavorite: (stream: RadioStream) => void;
 }
 
-// const result1 = {
-//   success: true,
-//   data: [
-//     {
-//       file: "tidal:track:6369964:92472696:92472705",
-//       title: "Alphatier",
-//       artist: "Adam Angst",
-//       album: "Neintology",
-//       time: "175",
-//       duration: 175,
-//     },
-//     {
-//       file: "tidal:track:6369964:92472696:92479999",
-//       title: "What do you want from live",
-//       artist: "Tubes",
-//       album: "Live",
-//       time: "175",
-//       duration: 175,
-//     },
-//     {
-//       file: "tidal:track:6369964:92472696:92478888",
-//       title: "hells bells",
-//       artist: "acdc",
-//       album: "ballbraeker",
-//       time: "175",
-//       duration: 175,
-//     },
-//   ],
-// };
-
 const Playlist: React.FC<PlaylistProps> = ({
   playlists,
   favoriteStreams,
