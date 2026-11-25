@@ -5,7 +5,7 @@ import { useAudioPlayer } from "../hooks/useAudioPlayer";
 import { useRecoilState } from "recoil";
 import { selectedMpdUrlState } from "../state/mpdUrls";
 // import { radioModeState } from "../state/radioMode";
-import { playPlaylist } from "../utils/playStream";
+import { playPlaylist, playStream } from "../utils/playStream";
 
 interface StreamListProps {
   station?: RadioStation;
@@ -64,10 +64,10 @@ export const StreamList: React.FC<StreamListProps> = ({
     loadStreams();
   }, [station?.name, selectedUrl]);
 
-  const handlePlayPress = async (stream: RadioStream | string | undefined) => {
+  const handlePlayPress = async (stream: RadioStream | undefined) => {
     try {
       if (!stream) return;
-      // await playplaylist(stationName);
+      await playStream(stream,"mpd", selectedUrl);
     } catch (error) {
       console.error("Error handling play press:", error);
     }

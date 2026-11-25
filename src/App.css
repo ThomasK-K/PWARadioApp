@@ -126,6 +126,82 @@ header h1 {
   cursor: pointer;
 }
 
+.app-status-area {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.app-status-area:empty {
+  display: none;
+}
+
+.status-message {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  text-align: left;
+  background: var(--card-bg);
+}
+
+.status-message strong {
+  display: block;
+  margin-bottom: 0.15rem;
+}
+
+.status-message p {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.status-error {
+  border-left: 4px solid var(--danger-color);
+}
+
+.status-warning {
+  border-left: 4px solid var(--warning-color);
+}
+
+.status-info {
+  border-left: 4px solid var(--primary-color);
+}
+
+.status-action,
+.status-dismiss {
+  border: 0;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.status-action {
+  flex-shrink: 0;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  background: var(--primary-color);
+  color: #fff;
+}
+
+.status-dismiss {
+  width: 2rem;
+  height: 2rem;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.status-dismiss:hover {
+  background: var(--hover-color);
+}
+
 .pwa-info {
   margin-top: auto;
   font-size: 0.9rem;

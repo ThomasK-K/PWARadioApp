@@ -23,7 +23,7 @@ export async function fetchMPDPlaylists(apiUrl: string): Promise<Playlist[]> {
     const response = await fetch(apiUrl, { cache: "no-store" });
     if (!response.ok) {
       console.error(`Fehler beim Abrufen der Playlists: ${response.status}`);
-      return []; // Leeres Array zurückgeben bei Fehler
+      throw new Error(`HTTP ${response.status}`);
     }
     
     const playlists = await response.json();
@@ -46,11 +46,11 @@ export async function fetchMPDPlaylists(apiUrl: string): Promise<Playlist[]> {
       }));
     } else {
       console.warn("Unerwartetes API-Format:", playlists);
-      return [];
+      throw new Error("Unerwartetes API-Format");
     }
   } catch (error) {
     console.error("Fehler beim Abrufen der Playlists:", error);
-    return []; // Leeres Array zurückgeben bei Fehler
+    throw error;
   }
 } 
 

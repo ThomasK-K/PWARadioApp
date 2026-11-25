@@ -23,6 +23,8 @@ function App() {
   const [isOnline, setIsOnline] = useState<boolean>(navigator.onLine);
   const [newVersionAvailable, setNewVersionAvailable] =
     useState<boolean>(false);
+  const [stationError, setStationError] = useState<string | null>(null);
+  const [playlistError, setPlaylistError] = useState<string | null>(null);
 
   const [selectedUrl] = useRecoilState(selectedMpdUrlState);
   const [stations, setStations] = useState<PlaylistType[]>([]);
@@ -56,6 +58,8 @@ function App() {
     console.log("App selectedUrl:", selectedUrl);
     if (!selectedUrl) {
       console.warn("Keine URL ausgewählt");
+      setStationError(null);
+      setPlaylistError(null);
       return;
     }
     const loadStations = async () => {
@@ -69,9 +73,11 @@ function App() {
         console.log("Versuche Playlists zu laden von:", apiUrl);
         const response = await fetchMPDPlaylists(apiUrl);
         setStations(response);
+        setStationError(null);
       } catch (e) {
         console.error("Fehler beim Laden der Stationen:", e);
         setStations([]);
+        setStationError("Die Sender konnten nicht geladen werden.");
       }
     };
 
@@ -86,9 +92,11 @@ function App() {
         console.log("Versuche Playlists zu laden von:", apiUrl);
         const response = await fetchMPDPlaylists(apiUrl);
         setPlaylists(response);
+        setPlaylistError(null);
       } catch (e) {
         console.error("Fehler beim Laden der Playlists:", e);
         setPlaylists([]);
+        setPlaylistError("Die Playlists konnten nicht geladen werden.");
       }
     };
 
@@ -108,14 +116,13 @@ function App() {
   useEffect(() => {
     const handleOnline = () => setIsOnline(true);
     const handleOffline = () => setIsOnline(false);
+    const handleUpdateAvailable = () => setNewVersionAvailable(true);
 
     window.addEventListener("online", handleOnline);
     window.addEventListener("offline", handleOffline);
 
     // Überprüfe, ob eine PWA-Aktualisierung verfügbar ist
-    window.addEventListener("sw-update-available", () => {
-      setNewVersionAvailable(true);
-    });
+    window.addEventListener("sw-update-available", handleUpdateAvailable);
 
     // System-Farbschema änderungen überwachen
     const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
@@ -130,9 +137,7 @@ function App() {
     return () => {
       window.removeEventListener("online", handleOnline);
       window.removeEventListener("offline", handleOffline);
-      window.removeEventListener("sw-update-available", () => {
-        setNewVersionAvailable(false);
-      });
+      window.removeEventListener("sw-update-available", handleUpdateAvailable);
 
       mediaQuery.removeEventListener("change", handleThemeChange);
     };
@@ -211,14 +216,67 @@ function App() {
         </div>
       </header>
 
-      {newVersionAvailable && (
-        <div className="update-banner">
-          <p>Eine neue Version ist verfügbar!</p>
-          <button onClick={updateApp} className="update-btn">
-            Aktualisieren
-          </button>
-        </div>
-      )}
+      <section className="app-status-area" aria-label="Anwendungsnachrichten" aria-live="polite">
+        {!isOnline && (
+          <div className="status-message status-error">
+            <div>
+              <strong>Keine Netzwerkverbindung</strong>
+              <p>Die App ist offline. Streams und Daten werden erst wieder verfügbar, wenn die Verbindung hergestellt ist.</p>
+            </div>
+          </div>
+        )}
+        {!selectedUrl && (
+          <div className="status-message status-warning">
+            <div>
+              <strong>Keine Server-Adresse ausgewählt</strong>
+              <p>Wähle unter Einstellungen einen MPD-Server aus.</p>
+            </div>
+          </div>
+        )}
+        {stationError && (
+          <div className="status-message status-error">
+            <div>
+              <strong>Sender konnten nicht geladen werden</strong>
+              <p>{stationError}</p>
+            </div>
+            <button
+              type="button"
+              className="status-dismiss"
+              onClick={() => setStationError(null)}
+              aria-label="Fehlermeldung schließen"
+            >
+              ×
+            </button>
+          </div>
+        )}
+        {playlistError && (
+          <div className="status-message status-error">
+            <div>
+              <strong>Playlists konnten nicht geladen werden</strong>
+              <p>{playlistError}</p>
+            </div>
+            <button
+              type="button"
+              className="status-dismiss"
+              onClick={() => setPlaylistError(null)}
+              aria-label="Fehlermeldung schließen"
+            >
+              ×
+            </button>
+          </div>
+        )}
+        {newVersionAvailable && (
+          <div className="status-message status-info">
+            <div>
+              <strong>Aktualisierung verfügbar</strong>
+              <p>Eine neue Version ist bereit zur Installation.</p>
+            </div>
+            <button onClick={updateApp} className="status-action">
+              Aktualisieren
+            </button>
+          </div>
+        )}
+      </section>
 
       <TabContainer
         tabs={tabs}
