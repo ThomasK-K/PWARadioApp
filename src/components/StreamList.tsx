@@ -72,10 +72,10 @@ export const StreamList: React.FC<StreamListProps> = ({
       console.error("Error handling play press:", error);
     }
   };
-  const handlePlayPlaylist = async (stationName: string | undefined) => {
+  const handlePlayPlaylist = async (station: RadioStation | undefined) => {
     try {
-      if (!stationName) return;
-      await playPlaylist(stationName,selectedUrl);
+      if (!station?.name) return;
+      await playPlaylist(station.name,selectedUrl);
     } catch (error) {
       console.error("Error handling play playlist:", error);
     }
@@ -90,7 +90,7 @@ export const StreamList: React.FC<StreamListProps> = ({
 
         <button
           className={"stream-button"}
-          onClick={() => handlePlayPlaylist(station?.name)}
+          onClick={() => handlePlayPlaylist(station)}
         >
           <h2>{station?.name || "Streams"}</h2>
         </button>
