@@ -37,6 +37,7 @@ export interface RadioStation {
   id?: string;
   name: string;
   url: string;
+  uriScheme?: string; // Typ der Playlist (z.B. "m3u", "tidal")
   imageUrl?: string; // Optional Bild-URL für die Station
   streams?: RadioStream[]; // Optional streams array for the station
 }

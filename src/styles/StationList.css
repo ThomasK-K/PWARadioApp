@@ -1,4 +1,8 @@
 
+.action-button delete {
+  z-index: 5;
+}
+
 .pl-input-container {
   display: flex;
   flex-direction: column;

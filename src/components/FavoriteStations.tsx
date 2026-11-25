@@ -47,7 +47,7 @@ const FavoriteStreams: React.FC<FavoriteStreamsProps> = ({
               type="button"
               onClick={() => handlePlayPress(stream)}
             >
-              {stream.url ? (
+              {/^https?:\/\//.test(stream.url) ? (
                 <img src={stream.url} alt="" className="favorite-tile-image" />
               ) : (
                 <span className="favorite-tile-placeholder" aria-hidden="true">

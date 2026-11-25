@@ -27,6 +27,7 @@ function App() {
   const [selectedUrl] = useRecoilState(selectedMpdUrlState);
   const [stations, setStations] = useState<PlaylistType[]>([]);
   const [playlists, setPlaylists] = useState<PlaylistType[]>([]);
+  const [reloadKey, setReloadKey] = useState(0);
   const [favoriteStreams, setFavoriteStreams] = useState<RadioStream[]>(
     safeGetItem<RadioStream[]>("favoriteStreams", []),
   );
@@ -97,7 +98,7 @@ function App() {
     } catch (error) {
       console.error("Unerwarteter Fehler:", error);
     }
-  }, [selectedUrl]);
+  }, [selectedUrl, reloadKey]);
 
   // Aktiver Tab
   const [activeTabId, setActiveTabId] = useState<string>(() => {
@@ -171,6 +172,8 @@ function App() {
       content: (
         <SenderList
           stations={stations}
+          onStationDeleted={() => setReloadKey((key) => key + 1)}
+          onStationAdded={() => setReloadKey((key) => key + 1)}
           favoriteStreams={favoriteStreams}
           onToggleFavorite={toggleFavorite}
         />

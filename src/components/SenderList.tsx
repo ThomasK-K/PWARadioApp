@@ -6,14 +6,24 @@ import type { Playlist, RadioStation, RadioStream } from "../types/types";
 
 interface SenderProps {
   stations: Playlist[];
+  onStationDeleted: (url: string) => void;
+  onStationAdded: () => void;
   favoriteStreams: RadioStream[];
   onToggleFavorite: (stream: RadioStream) => void;
 }
 
 const SenderList: React.FC<SenderProps> = (props) => {
-  const { stations, favoriteStreams, onToggleFavorite } = props;
-  const [selectedStation, setSelectedStation] = useState<RadioStation | undefined>(undefined);
-  
+  const {
+    stations,
+    onStationDeleted,
+    onStationAdded,
+    favoriteStreams,
+    onToggleFavorite,
+  } = props;
+  const [selectedStation, setSelectedStation] = useState<
+    RadioStation | undefined
+  >(undefined);
+
   // console.log("Stations: ", stations, favoriteNames);
 
   // Handler für die Auswahl einer Station
@@ -40,6 +50,8 @@ const SenderList: React.FC<SenderProps> = (props) => {
         <StationList
           stations={stations}
           onBack={handleBackToStations}
+          onStationDeleted={onStationDeleted}
+          onStationAdded={onStationAdded}
           // favoriteStreams={favoriteStreams}
           onStationSelect={handleStationSelect}
           // onToggleFavorite={onToggleFavorite}

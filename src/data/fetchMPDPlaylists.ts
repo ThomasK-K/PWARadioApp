@@ -1,10 +1,6 @@
 import type { Playlist, RadioStation, RadioStream } from '../types/types';
 
-// Beispiel für Mopidy/MPD REST API Antwort:
-// [
-//   { "name": "Playlist 1", "tracks": [ { "title": "Song 1", "file": "http://..." }, ... ] },
-//   ...
-// ]
+
 
 export async function fetchMPDPlaylists1(apiUrl: string): Promise<RadioStation[]> {
   const response = await fetch(apiUrl);
@@ -24,7 +20,7 @@ export async function fetchMPDPlaylists1(apiUrl: string): Promise<RadioStation[]
 
 export async function fetchMPDPlaylists(apiUrl: string): Promise<Playlist[]> {
   try {
-    const response = await fetch(apiUrl);
+    const response = await fetch(apiUrl, { cache: "no-store" });
     if (!response.ok) {
       console.error(`Fehler beim Abrufen der Playlists: ${response.status}`);
       return []; // Leeres Array zurückgeben bei Fehler
@@ -46,7 +42,7 @@ export async function fetchMPDPlaylists(apiUrl: string): Promise<Playlist[]> {
       return playlists.data.map((pl: any, idx: number) => ({
         id: String(idx + 1),
         name: typeof pl === 'object' ? (pl.playlist.name || `Playlist ${idx + 1}`) : pl || `Playlist ${idx + 1}`,
-        url: typeof pl === 'object' ? (pl.playlisturi || `playlist-${idx + 1}`) : undefined
+        url: typeof pl === 'object' ? (pl.playlist.uri || `playlist-${idx + 1}`) : undefined
       }));
     } else {
       console.warn("Unerwartetes API-Format:", playlists);
