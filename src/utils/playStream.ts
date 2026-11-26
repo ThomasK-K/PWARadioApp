@@ -34,3 +34,14 @@ export const playPlaylist = async (stationName: string,selectedUrl: string) : Pr
     console.log("Error handling play press:", error);
   }
 };
+export const MPDstatus = async (selectedUrl: string) : Promise<Error|any> => {
+  try {
+    const response =await fetch(`${selectedUrl}`, {
+      method: "GET",
+    });
+    return await response.json();
+  } catch (error ) {
+    console.log("Error handling status request:", error);
+    return error instanceof Error ? error : new Error(String(error));
+  }
+};

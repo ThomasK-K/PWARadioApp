@@ -13,6 +13,7 @@ import { useRecoilState } from "recoil";
 import { selectedMpdUrlState } from "../src/state/mpdUrls";
 import { useLocalStorageCleanup } from "../src/utils/localStorageCleanup";
 import { safeGetItem, safeSetItem } from "./utils/storageUtils";
+import { MPDstatus } from "./utils/playStream";
 import "./styles/UpdateNotification.css";
 
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -23,7 +24,7 @@ function App() {
   useLocalStorageCleanup();
 
   // Prüfe die Online/Offline-Verbindung
-  const [isOnline, setIsOnline] = useState<boolean>(navigator.onLine);
+  const [isOnline, setIsOnline] = useState<boolean>(true);
   const [newVersionAvailable, setNewVersionAvailable] =
     useState<boolean>(false);
   const [stationError, setStationError] = useState<string | null>(null);
@@ -56,6 +57,20 @@ function App() {
         : [...favoriteStreams, stream],
     );
   };
+
+  useEffect(() => {
+    const fetchStatus = async () => {
+      if (selectedUrl) {
+        const status = await MPDstatus(selectedUrl);
+        if(status instanceof Error) {
+          console.log("Error fetching MPD status:", status);
+        }
+        if (status === undefined || status.success === false)
+          setIsOnline(false);
+      }
+    };
+    fetchStatus();
+  }, []);
 
   useEffect(() => {
     console.log("App selectedUrl:", selectedUrl);
@@ -160,7 +175,76 @@ function App() {
     // Eine benutzerdefinierte Funktion, die den Service Worker aktualisiert
     window.location.reload();
   };
-
+  const ErrorHandling = (
+    <section
+      className="app-status-area"
+      aria-label="Anwendungsnachrichten"
+      aria-live="polite"
+    >
+      {!isOnline && (
+        <div className="status-message status-error" onClick={() => setIsOnline(true)}>
+          <div>
+            <strong>Keine Verbindung zum MOPIDY-Server</strong>
+            <p>
+              Die App ist offline. Streams und Daten werden erst wieder
+              verfügbar, wenn die Verbindung zum Mopidy-Server hergestellt ist.
+            </p>
+          </div>
+        </div>
+      )}
+      {!selectedUrl && (
+        <div className="status-message status-warning">
+          <div>
+            <strong>Keine Server-Adresse ausgewählt</strong>
+            <p>Wähle unter Einstellungen einen MPD-Server aus.</p>
+          </div>
+        </div>
+      )}
+      {stationError && (
+        <div className="status-message status-error" onClick={() => setStationError(null)}>
+          <div>
+            <strong>Sender konnten nicht geladen werden</strong>
+            <p>{stationError}</p>
+          </div>
+          <button
+            type="button"
+            className="status-dismiss"
+            onClick={() => setStationError(null)}
+            aria-label="Fehlermeldung schließen"
+          >
+            ×
+          </button>
+        </div>
+      )}
+      {playlistError && (
+        <div className="status-message status-error" onClick={() => setPlaylistError(null)}>
+          <div>
+            <strong>Playlists konnten nicht geladen werden</strong>
+            <p>{playlistError}</p>
+          </div>
+          <button
+            type="button"
+            className="status-dismiss"
+            onClick={() => setPlaylistError(null)}
+            aria-label="Fehlermeldung schließen"
+          >
+            ×
+          </button>
+        </div>
+      )}
+      {newVersionAvailable && (
+        <div className="status-message status-info">
+          <div>
+            <strong>Aktualisierung verfügbar</strong>
+            <p>Eine neue Version ist bereit zur Installation.</p>
+          </div>
+          <button onClick={updateApp} className="status-action">
+            Aktualisieren
+          </button>
+        </div>
+      )}
+    </section>
+  );
   // Tab-Definition
   const tabs: TabData[] = [
     {
@@ -218,69 +302,7 @@ function App() {
           {isOnline ? "Online" : "Offline"}
         </div>
       </header>
-
-      <section className="app-status-area" aria-label="Anwendungsnachrichten" aria-live="polite">
-        {!isOnline && (
-          <div className="status-message status-error">
-            <div>
-              <strong>Keine Netzwerkverbindung</strong>
-              <p>Die App ist offline. Streams und Daten werden erst wieder verfügbar, wenn die Verbindung hergestellt ist.</p>
-            </div>
-          </div>
-        )}
-        {!selectedUrl && (
-          <div className="status-message status-warning">
-            <div>
-              <strong>Keine Server-Adresse ausgewählt</strong>
-              <p>Wähle unter Einstellungen einen MPD-Server aus.</p>
-            </div>
-          </div>
-        )}
-        {stationError && (
-          <div className="status-message status-error">
-            <div>
-              <strong>Sender konnten nicht geladen werden</strong>
-              <p>{stationError}</p>
-            </div>
-            <button
-              type="button"
-              className="status-dismiss"
-              onClick={() => setStationError(null)}
-              aria-label="Fehlermeldung schließen"
-            >
-              ×
-            </button>
-          </div>
-        )}
-        {playlistError && (
-          <div className="status-message status-error">
-            <div>
-              <strong>Playlists konnten nicht geladen werden</strong>
-              <p>{playlistError}</p>
-            </div>
-            <button
-              type="button"
-              className="status-dismiss"
-              onClick={() => setPlaylistError(null)}
-              aria-label="Fehlermeldung schließen"
-            >
-              ×
-            </button>
-          </div>
-        )}
-        {newVersionAvailable && (
-          <div className="status-message status-info">
-            <div>
-              <strong>Aktualisierung verfügbar</strong>
-              <p>Eine neue Version ist bereit zur Installation.</p>
-            </div>
-            <button onClick={updateApp} className="status-action">
-              Aktualisieren
-            </button>
-          </div>
-        )}
-      </section>
-
+      {ErrorHandling}
       <TabContainer
         tabs={tabs}
         defaultTab={activeTabId}
