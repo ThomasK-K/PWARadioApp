@@ -82,7 +82,6 @@ export const Tracklist: React.FC<TracklistProps> = ({
     }
   };
 
-
   return (
     <div className="stream-list-container">
       <div className="stream-list-header">
@@ -123,7 +122,7 @@ export const Tracklist: React.FC<TracklistProps> = ({
                     onClick={() => handlePlayPress(track)}
                     disabled={isLoading}
                   >
-                    <div className="stream-info">
+                    <div className="stream-info" onClick={() => handlePlayPress(track)}>
                       <div className="stream-name">{track.name}</div>
                       <div className="stream-artist">
                         {track.artists?.[0]?.name || "Unbekannt"}
@@ -167,8 +166,7 @@ export const Tracklist: React.FC<TracklistProps> = ({
             })}
           </ul>
         </div>
-      )
-    }
+      )}
     </div>
   );
 };

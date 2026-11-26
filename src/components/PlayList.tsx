@@ -8,6 +8,9 @@ import type {
   Track,
 } from "../types/types";
 import TrackList from "./TrackList";
+import { ConfirmModal } from "./ConfirmModal";
+// import { deletePlaylist } from "../utils/playlistUtils";
+import { playPlaylist } from "../utils/playStream";
 
 interface PlaylistProps {
   playlists: PlaylistType[];
@@ -29,13 +32,16 @@ const Playlist: React.FC<PlaylistProps> = ({
   const [queryCategory, setQueryCategory] = useState<string>("");
   const [value, setValue] = useState<string>("");
   const [selectedTracks, setSelectedTracks] = useState<Track[]>([]);
-  const [tracklist,setTracklist] = useState<Track[]>([]);
+  const [tracklist, setTracklist] = useState<Track[]>([]);
+  const [confirmModalOpen, setConfirmModalOpen] = useState<boolean>(true);
+  const [selectedPlaylistToDelete, setSelectedPlaylistToDelete] =
+    useState<PlaylistType | null>(null);
 
   const handleSuche = async () => {
     setDoSuche(true);
     let apiUrl = "";
-    console.log("suche ...", value, queryCategory);
-
+    setTracklist([]);
+    setSelectedTracks([]);
     if (queryCategory !== "") {
       if (queryCategory === "album") {
         apiUrl = `${selectedUrl}/searchbyalbum?${queryCategory}=${value}`;
@@ -50,12 +56,12 @@ const Playlist: React.FC<PlaylistProps> = ({
       }
       const resp = await response.json();
       // add to playlist
-      const tracks = resp.data as Track[]
-      console.log("suche ...", value, queryCategory,tracks);
+      const tracks = resp.data as Track[];
+      console.log("suche ...", value, queryCategory, tracks);
       setTracklist((prev) => [...prev, ...tracks]);
     }
   };
-// seletedTracks
+  // seletedTracks
   const handlePlaylistSelect = (playlist: PlaylistType) => {
     console.log("Ausgewählte Playlist:", playlist);
     setSelectedPlaylist(playlist);
@@ -83,9 +89,29 @@ const Playlist: React.FC<PlaylistProps> = ({
   const handleBackToStations = () => {
     setSelectedPlaylist(null);
   };
+  const handlePlayPlaylist = async (stationName: string | undefined) => {
+    try {
+      if (!stationName) return;
+      await playPlaylist(stationName, selectedUrl);
+    } catch (error) {
+      console.error("Error handling play playlist:", error);
+    }
+  };
+
+  const handleDeletePlaylist = async () => {
+    if (!selectedPlaylistToDelete) return;
+    console.log("Deleting playlist:", selectedPlaylistToDelete.url);
+    // await deletePlaylist(selectedUrl, selectedPlaylistToDelete.url);
+    setConfirmModalOpen(false);
+    // onDeletePlaylist(selectedPlaylistToDelete);
+  };
+  const onPlaylistToDelete = async (playlist: PlaylistType) => {
+    setSelectedPlaylistToDelete(playlist);
+    setConfirmModalOpen(true);
+  };
 
   const sucheItem = (
-    <div className="station-list-header">
+    <div className="searchresult-container">
       <button
         className="back-button"
         onClick={() => {
@@ -103,7 +129,6 @@ const Playlist: React.FC<PlaylistProps> = ({
             value={value}
             onChange={(e) => setValue(e.target.value)}
             placeholder="Gib einen Namen ein"
-            // className="pl-input"
           />
         </div>
         <div className="pl-item">
@@ -121,6 +146,67 @@ const Playlist: React.FC<PlaylistProps> = ({
         <button onClick={handleSuche} className="url-button">
           {"Suche!"}
         </button>
+      </div>
+       <div className="pl-group">
+
+        {/* Button to add selected tracks to playlist */}
+
+        <ul className="searchresult-container">
+          {selectedTracks.length > 0 && (
+            <button onClick={handleSuche} className="toPlaylist-button">
+              {"Zu Playlist hinzufügen"}
+            </button>
+          )}
+          <li>
+            <div className="searchresult-row">
+              <div className="checkbox-column">
+                {/* <input type="checkbox" /> */}
+              </div>
+              <div>
+                <strong>Titel</strong>
+              </div>
+              <div>
+                <strong>Album</strong>
+              </div>
+              <div>
+                <strong>Artist</strong>
+              </div>
+            </div>
+          </li>
+          {tracklist.length === 0 && (
+            <li>
+              <div className="searchresult-row">
+                <div>Keine Ergebnisse gefunden</div>
+              </div>
+            </li>
+          )}
+
+          {tracklist.map((itm, index) => (
+            <li key={index}>
+              <div className="searchresult-row">
+                <div className="checkbox-column">
+                  <input
+                    type="checkbox"
+                    onChange={(e) => setList(e.target.checked, index)}
+                  />
+                </div>
+                <div>
+                  <span>{itm.title}</span>
+                </div>
+                <div>
+                  <span>{itm.album}</span>
+                </div>
+                <div>
+                  <span>
+                    {typeof itm.artist === "string"
+                      ? itm.artist
+                      : itm.artist?.name}
+                  </span>
+                </div>
+              </div>
+            </li>
+          ))}
+        </ul>
       </div>
     </div>
   );
@@ -149,21 +235,28 @@ const Playlist: React.FC<PlaylistProps> = ({
               <li
                 key={playlist.id ?? playlist.name}
                 className="station-item"
-                onClick={() => handlePlaylistSelect(playlist)}
-                onKeyDown={(event) => {
-                  if (
-                    event.target === event.currentTarget &&
-                    (event.key === "Enter" || event.key === " ")
-                  ) {
-                    event.preventDefault();
-                    handlePlaylistSelect(playlist);
-                  }
-                }}
                 tabIndex={0}
               >
                 <div className="station-content">
-                  <div className="station-name">{playlist.name}</div>
-                  <span className="material-icons">{"play_arrow"}66</span>
+                  <div
+                    className="station-name"
+                    onClick={() => handlePlaylistSelect(playlist)}
+                  >
+                    {playlist.name}
+                  </div>
+                  <span
+                    className="material-icons"
+                    onClick={() => handlePlayPlaylist(playlist.name)}
+                  >
+                    {"play_arrow"}
+                  </span>
+                  <button
+                    onClick={() => onPlaylistToDelete(playlist)}
+                    className="action-button delete"
+                    aria-label="URL löschen"
+                  >
+                    🗑️
+                  </button>
                 </div>
               </li>
             ))}
@@ -171,45 +264,20 @@ const Playlist: React.FC<PlaylistProps> = ({
         </div>
       )}
 
-      <ul className="searchresult-container">
-        <li>
-          <div className="searchresult-row">
-            <div className="checkbox-column">
-              {/* <input type="checkbox" /> */}
-            </div>
-            <div>
-              <strong>Titel</strong>
-            </div>
-            <div>
-              <strong>Album</strong>
-            </div>
-            <div>
-              <strong>Artist</strong>
-            </div>
-          </div>
-        </li>
-        {tracklist.map((itm, index) => (
-          <li key={index}>
-            <div className="searchresult-row">
-              <div className="checkbox-column">
-                <input
-                  type="checkbox"
-                  onChange={(e) => setList(e.target.checked, index)}
-                />
-              </div>
-              <div>
-                <span>{itm.title}</span>
-              </div>
-              <div>
-                <span>{itm.album}</span>
-              </div>
-              <div>
-                <span>{typeof itm.artist === "string" ? itm.artist : itm.artist?.name}</span>
-              </div>
-            </div>
-          </li>
-        ))}
-      </ul>
+      {confirmModalOpen ? (
+        <ConfirmModal
+          open={!!selectedPlaylistToDelete}
+          title="PLaylist löschen?"
+          message={`Möchten Sie die Playlist "${selectedPlaylistToDelete?.name}" wirklich löschen?`}
+          onResult={(result) => {
+            if (result && selectedPlaylistToDelete) {
+              handleDeletePlaylist();
+              setConfirmModalOpen(false);
+            }
+            setSelectedPlaylistToDelete(null);
+          }}
+        />
+      ) : null}
     </div>
   );
 };
