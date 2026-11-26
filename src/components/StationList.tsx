@@ -4,38 +4,39 @@ import type { Playlist, RadioStation } from "../types/types";
 import { createPlaylist, deletePlaylist } from "../utils/playlistUtils";
 import { useRecoilState } from "recoil";
 import { selectedMpdUrlState } from "../state/mpdUrls";
+import { ConfirmModal } from "./ConfirmModal";
 
 interface StationProps {
   stations: Playlist[];
   onStationSelect: (station: RadioStation) => void;
   onBack: () => void;
-  onStationDeleted: (url: string) => void;
+  onStationDelete: (station: Playlist) => void;
   onStationAdded: () => void;
 }
 
 export const StationList: React.FC<StationProps> = ({
   stations,
   onStationSelect,
-  onStationDeleted,
+  onStationDelete,
   onStationAdded,
 }) => {
   const [doPlHandling, setDoPlaylistHandling] = useState<Boolean>(false);
   const [plName, setPlName] = useState<string>("");
   const [uriScheme, setUriScheme] = useState<string>("tidal");
+  const [confirmModalOpen, setConfirmModalOpen] = useState<boolean>(true);
+  const [selectedStation, setSelectedStation] = useState<Playlist | null>(null);
 
   const [selectedUrl] = useRecoilState(selectedMpdUrlState);
 
-  const handleDeletePlaylist = async (station: Playlist) => {
-    const ret = await deletePlaylist(selectedUrl, station.url);
-    if (ret?.ok) {
-      onStationDeleted(station.url);
-    } else {
-      console.error(
-        "Station konnte nicht gelöscht werden:",
-        station.name,
-        ret?.statusText ?? "Keine Serverantwort",
-      );
-    }
+  const handleDeleteStation = async (station: Playlist) => {
+    console.log("Deleting station:", station.url);
+    await deletePlaylist(selectedUrl, station.url);
+    setConfirmModalOpen(false);
+    onStationDelete(station);
+  };
+  const onDeleteStation = async (station: Playlist) => {
+    setSelectedStation(station);
+    setConfirmModalOpen(true);
   };
 
   const handleAddStation = async (name: string, uriScheme: string) => {
@@ -103,9 +104,7 @@ export const StationList: React.FC<StationProps> = ({
                 </select>
               </div>
               <button
-                onClick={() =>
-                  handleAddStation(plName, uriScheme)
-                }
+                onClick={() => handleAddStation(plName, uriScheme)}
                 className="url-button"
               >
                 {"Hinzufügen"}
@@ -162,7 +161,7 @@ export const StationList: React.FC<StationProps> = ({
                     {station.name}
                   </div>
                   <button
-                    onClick={() => handleDeletePlaylist(station)}
+                    onClick={() => onDeleteStation(station)}
                     className="action-button delete"
                     aria-label="URL löschen"
                   >
@@ -174,6 +173,20 @@ export const StationList: React.FC<StationProps> = ({
           </div>
         )}
       </ul>
+      {confirmModalOpen ? (
+        <ConfirmModal
+          open={!!selectedStation}
+          title="PLaylist löschen?"
+          message={`Möchten Sie die Playlist "${selectedStation?.name}" wirklich löschen?`}
+          onResult={(result) => {
+            if (result && selectedStation) {
+              handleDeleteStation(selectedStation);
+              setConfirmModalOpen(false);
+            }
+            setSelectedStation(null);
+          }}
+        />
+      ) : null}
     </div>
   );
 };

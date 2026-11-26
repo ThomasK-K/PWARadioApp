@@ -6,7 +6,7 @@ import type { Playlist, RadioStation, RadioStream } from "../types/types";
 
 interface SenderProps {
   stations: Playlist[];
-  onStationDeleted: (url: string) => void;
+  onStationDeleted: () => void;
   onStationAdded: () => void;
   favoriteStreams: RadioStream[];
   onToggleFavorite: (stream: RadioStream) => void;
@@ -50,7 +50,7 @@ const SenderList: React.FC<SenderProps> = (props) => {
         <StationList
           stations={stations}
           onBack={handleBackToStations}
-          onStationDeleted={onStationDeleted}
+          onStationDelete={onStationDeleted}
           onStationAdded={onStationAdded}
           // favoriteStreams={favoriteStreams}
           onStationSelect={handleStationSelect}

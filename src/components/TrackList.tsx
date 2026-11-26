@@ -81,9 +81,7 @@ export const Tracklist: React.FC<TracklistProps> = ({
       console.error("Error handling play playlist:", error);
     }
   };
-  const handleSearch = () => {
-    console.log("handlesearch");
-  };
+
 
   return (
     <div className="stream-list-container">
@@ -105,13 +103,13 @@ export const Tracklist: React.FC<TracklistProps> = ({
         <div className="loading-indicator">Lade Streams...</div>
       ) : (
         <div>
-          <button
+          {/* <button
             className="stream-button"
             onClick={() => handleSearch()}
             disabled={isLoading}
           >
             Suche
-          </button>
+          </button> */}
           <ul className="tracklist">
             {tracks.map((track) => {
               const isCurrentlyPlaying = currentUrl === track.url && isPlaying;

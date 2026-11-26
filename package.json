@@ -13,6 +13,7 @@
     "pack": "gzip -r dist.zip dist"
   },
   "dependencies": {
+    "bootstrap": "^5.3.9",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "recoil": "^0.7.7"

@@ -205,6 +205,12 @@ export const PlayerControl: React.FC = () => {
 
       <div className="player-controls">
         <IconButton
+          icon="skip_previous"
+          label="Zurück"
+          onPress={() => handleAction("previous")}
+          disabled={isLoading}
+        />
+        <IconButton
           icon="play_arrow"
           label="Play"
           onPress={() => handleAction("play")}
@@ -220,6 +226,12 @@ export const PlayerControl: React.FC = () => {
           icon="stop"
           label="Stop"
           onPress={() => handleAction("stop")}
+          disabled={isLoading}
+        />
+        <IconButton
+          icon="skip_next"
+          label="Vor"
+          onPress={() => handleAction("next")}
           disabled={isLoading}
         />
       </div>

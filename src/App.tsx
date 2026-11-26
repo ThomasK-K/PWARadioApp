@@ -15,6 +15,9 @@ import { useLocalStorageCleanup } from "../src/utils/localStorageCleanup";
 import { safeGetItem, safeSetItem } from "./utils/storageUtils";
 import "./styles/UpdateNotification.css";
 
+import "bootstrap/dist/css/bootstrap.min.css";
+import "bootstrap/dist/js/bootstrap.bundle.min.js";
+
 function App() {
   // Bereinige localStorage beim App-Start
   useLocalStorageCleanup();
