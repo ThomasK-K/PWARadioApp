@@ -19,6 +19,12 @@ import "./styles/UpdateNotification.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 
+type MessageType = {
+  type: "Error" | "Info" | "Warning";
+  name: string;
+  message: string;
+};
+
 function App() {
   // Bereinige localStorage beim App-Start
   useLocalStorageCleanup();
@@ -27,8 +33,7 @@ function App() {
   const [isOnline, setIsOnline] = useState<boolean>(true);
   const [newVersionAvailable, setNewVersionAvailable] =
     useState<boolean>(false);
-  const [stationError, setStationError] = useState<string | null>(null);
-  const [playlistError, setPlaylistError] = useState<string | null>(null);
+  const [message, setMessage] = useState<MessageType | null>(null);
 
   const [selectedUrl] = useRecoilState(selectedMpdUrlState);
   const [stations, setStations] = useState<PlaylistType[]>([]);
@@ -60,13 +65,15 @@ function App() {
 
   useEffect(() => {
     const fetchStatus = async () => {
+      setIsOnline(false);
       if (selectedUrl) {
         const status = await MPDstatus(selectedUrl);
-        if(status instanceof Error) {
+        if (status instanceof Error) {
           console.log("Error fetching MPD status:", status);
-        }
-        if (status === undefined || status.success === false)
           setIsOnline(false);
+        } else if (status === undefined || status.success === false)
+          setIsOnline(false);
+        else setIsOnline(true);
       }
     };
     fetchStatus();
@@ -76,9 +83,9 @@ function App() {
     console.log("App selectedUrl:", selectedUrl);
     if (!selectedUrl) {
       console.warn("Keine URL ausgewählt");
-      setStationError(null);
-      setPlaylistError(null);
-      return;
+      setMessage(null);
+      setStations([]);
+      setPlaylists([]);
     }
     const loadStations = async () => {
       if (!selectedUrl) {
@@ -88,14 +95,17 @@ function App() {
 
       try {
         const apiUrl = `${selectedUrl}/getPlaylistsByType?type=m3u`;
-        console.log("Versuche Playlists zu laden von:", apiUrl);
         const response = await fetchMPDPlaylists(apiUrl);
         setStations(response);
-        setStationError(null);
+        setMessage(null);
       } catch (e) {
         console.error("Fehler beim Laden der Stationen:", e);
         setStations([]);
-        setStationError("Die Sender konnten nicht geladen werden.");
+        setMessage({
+          type: "Error",
+          name: "StationsError",
+          message: "Die Sender konnten nicht geladen werden.",
+        });
       }
     };
 
@@ -110,17 +120,23 @@ function App() {
         console.log("Versuche Playlists zu laden von:", apiUrl);
         const response = await fetchMPDPlaylists(apiUrl);
         setPlaylists(response);
-        setPlaylistError(null);
+        setMessage(null);
       } catch (e) {
+        setMessage({
+          type: "Error",
+          name: "PlaylistsError",
+          message: "Die Playlists konnten nicht geladen werden.",
+        });
         console.error("Fehler beim Laden der Playlists:", e);
         setPlaylists([]);
-        setPlaylistError("Die Playlists konnten nicht geladen werden.");
       }
     };
 
     try {
-      loadStations();
-      loadPlaylists();
+      if (isOnline) {
+        loadStations();
+        loadPlaylists();
+      }
     } catch (error) {
       console.error("Unerwarteter Fehler:", error);
     }
@@ -156,6 +172,7 @@ function App() {
       window.removeEventListener("online", handleOnline);
       window.removeEventListener("offline", handleOffline);
       window.removeEventListener("sw-update-available", handleUpdateAvailable);
+      setMessage(null);
 
       mediaQuery.removeEventListener("change", handleThemeChange);
     };
@@ -175,22 +192,45 @@ function App() {
     // Eine benutzerdefinierte Funktion, die den Service Worker aktualisiert
     window.location.reload();
   };
-  const ErrorHandling = (
+  const MessageHandling = (
     <section
       className="app-status-area"
       aria-label="Anwendungsnachrichten"
       aria-live="polite"
     >
-      {!isOnline && (
-        <div className="status-message status-error" onClick={() => setIsOnline(true)}>
+      {message !== null && (
+        message?.type === "Error" && (  
+        <div
+          className="status-message status-error"
+          onClick={() => setMessage(null)}
+        >
           <div>
-            <strong>Keine Verbindung zum MOPIDY-Server</strong>
-            <p>
-              Die App ist offline. Streams und Daten werden erst wieder
-              verfügbar, wenn die Verbindung zum Mopidy-Server hergestellt ist.
-            </p>
+            <strong>{message?.name}</strong>
+            <p>{message?.message}</p>
           </div>
-        </div>
+        </div>)
+        ||
+        message?.type === "Warning" && (
+        <div
+          className="status-message status-warning"
+          onClick={() => setMessage(null)}
+        >
+          <div>
+            <strong>{message?.name}</strong>
+            <p>{message?.message}</p>
+          </div>
+        </div>)||
+        message?.type === "Info" && (
+        <div
+          className="status-message status-info"
+          onClick={() => setMessage(null)}
+        >
+          <div>
+            <strong>{message?.name}</strong>
+            <p>{message?.message}</p>
+          </div>
+        </div>)
+        || true // Fallback to avoid rendering nothing if message type doesn't match any known type
       )}
       {!selectedUrl && (
         <div className="status-message status-warning">
@@ -200,38 +240,7 @@ function App() {
           </div>
         </div>
       )}
-      {stationError && (
-        <div className="status-message status-error" onClick={() => setStationError(null)}>
-          <div>
-            <strong>Sender konnten nicht geladen werden</strong>
-            <p>{stationError}</p>
-          </div>
-          <button
-            type="button"
-            className="status-dismiss"
-            onClick={() => setStationError(null)}
-            aria-label="Fehlermeldung schließen"
-          >
-            ×
-          </button>
-        </div>
-      )}
-      {playlistError && (
-        <div className="status-message status-error" onClick={() => setPlaylistError(null)}>
-          <div>
-            <strong>Playlists konnten nicht geladen werden</strong>
-            <p>{playlistError}</p>
-          </div>
-          <button
-            type="button"
-            className="status-dismiss"
-            onClick={() => setPlaylistError(null)}
-            aria-label="Fehlermeldung schließen"
-          >
-            ×
-          </button>
-        </div>
-      )}
+
       {newVersionAvailable && (
         <div className="status-message status-info">
           <div>
@@ -302,7 +311,7 @@ function App() {
           {isOnline ? "Online" : "Offline"}
         </div>
       </header>
-      {ErrorHandling}
+      {MessageHandling}
       <TabContainer
         tabs={tabs}
         defaultTab={activeTabId}
