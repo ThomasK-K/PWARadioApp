@@ -6,7 +6,7 @@ import { radioModeState } from "../state/radioMode";
 import { useAudioPlayer } from "../hooks/useAudioPlayer";
 import { songUpdateInterval } from "../state/songInterval";
 import { safeGetItem } from "../utils/storageUtils";
-import { actStream } from "../state/actStream";
+import { actualStreamState} from "../state/actualStream";
 import defaultAlbumArt from "../assets/no-album-art.svg";
 
 // --- Helper Components ---
@@ -41,7 +41,7 @@ export const PlayerControl: React.FC = () => {
   const [selectedUrl] = useRecoilState(selectedMpdUrlState);
   const [radioMode] = useRecoilState(radioModeState);
   const [songInterval] = useRecoilState(songUpdateInterval);
-  const [actStreamState] = useRecoilState(actStream);
+  const [actStreamState] = useRecoilState(actualStreamState);
   const [volume, setVolume] = useState(() => {
     return safeGetItem<number>("volume", 50);
   });
@@ -163,7 +163,7 @@ export const PlayerControl: React.FC = () => {
             {songData.file?.startsWith("tidal") ? (
               <p>Tidal</p>
             ) : (
-              <p>Station: </p>
+              <p>Station: {actStreamState} </p>
             )}
 
             {songData.album ? (

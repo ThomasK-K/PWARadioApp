@@ -6,6 +6,8 @@ import { useRecoilState } from "recoil";
 import { selectedMpdUrlState } from "../state/mpdUrls";
 // import { radioModeState } from "../state/radioMode";
 import { playPlaylist, playStream } from "../utils/playStream";
+import { actualStreamState } from "../state/actualStream";
+
 
 interface StreamListProps {
   station?: RadioStation;
@@ -26,6 +28,7 @@ export const StreamList: React.FC<StreamListProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { isPlaying, currentUrl } = useAudioPlayer();
+  const [, setActualStream] = useRecoilState(actualStreamState);
 
   useEffect(() => {
     if (!station?.name || !selectedUrl) return;
@@ -67,6 +70,7 @@ export const StreamList: React.FC<StreamListProps> = ({
   const handlePlayPress = async (stream: RadioStream | undefined) => {
     try {
       if (!stream) return;
+      setActualStream(stream.name);
       await playStream(stream,"mpd", selectedUrl);
     } catch (error) {
       console.error("Error handling play press:", error);
